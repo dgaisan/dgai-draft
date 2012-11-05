@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC 
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>	
+
+	<package name="myPackage" extends="struts-default">
+	
+		<interceptors>
+			<interceptor name="loginInterceptor" class="com.onlymega.dgaisan.html5maker.interceptors.AuthenticationIntercepter" />
+			
+			<interceptor-stack name="defaultLoginStack">
+                <interceptor-ref name="exception"/>
+                <interceptor-ref name="alias"/>
+                <interceptor-ref name="servletConfig"/>
+                <interceptor-ref name="i18n"/>
+                <interceptor-ref name="loginInterceptor"/>
+                <interceptor-ref name="prepare"/>
+                <interceptor-ref name="chain"/>
+                <interceptor-ref name="scopedModelDriven"/>
+                <interceptor-ref name="modelDriven"/>
+                <interceptor-ref name="fileUpload"/>
+                <interceptor-ref name="checkbox"/>
+                <interceptor-ref name="multiselect"/>
+                <interceptor-ref name="staticParams"/>
+                <interceptor-ref name="actionMappingParams"/>
+                <interceptor-ref name="params">
+                    <param name="excludeParams">dojo\..*,^struts\..*,^session\..*,^request\..*,^application\..*,^servlet(Request|Response)\..*,parameters\...*</param>
+                </interceptor-ref>
+                <interceptor-ref name="conversionError"/>
+                <interceptor-ref name="validation">
+                    <param name="excludeMethods">input,back,cancel,browse</param>
+                </interceptor-ref>
+                <interceptor-ref name="workflow">
+                    <param name="excludeMethods">input,back,cancel,browse</param>
+                </interceptor-ref>
+                <interceptor-ref name="debugging"/>
+            </interceptor-stack>
+		</interceptors>
+	
+		<global-results>
+			 <result name="login_result">/jsp/login.jsp</result>
+		</global-results>
+		
+		<global-exception-mappings>
+			<exception-mapping result="error" exception="*">
+				/error.jsp
+			</exception-mapping>
+		</global-exception-mappings>
+		
+		<action name="index" class="com.onlymega.dgaisan.html5maker.IndexAction">
+			<result>/jsp/login.jsp</result>
+		</action>
+		
+		<action name="login" class="login"> 
+			<result name="input">/jsp/login.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result name="admin">/jsp/admin/home.jsp</result>
+			<result>/jsp/hello.jsp</result>
+		</action>
+
+		<action name="logout" class="login" method="logout"> 
+			<result name="input">/jsp/login.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result>jsp/login.jsp</result>
+		</action>
+
+		<action name="register" class="register">
+			<result name="input">/jsp/register.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result>/jsp/home.jsp</result>
+		</action>
+
+		<action name="saveImage" class="saveImage">
+			<result>/jsp/home.jsp</result>
+		</action>
+
+		<action name="saveData" class="saveData">
+			<result>/jsp/home.jsp</result>
+		</action>
+		
+		<action name="/confirmation/*" class="register" method="confirmRegistrationAction">
+			<param name="confirmToken">{1}</param>
+			<result name="input">/jsp/register.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result>/jsp/home.jsp</result>
+		</action>   
+
+		<action name="registerpage" class="register" method="initPage">
+			<result name="error">/error.jsp</result>
+			<result name="input">/jsp/login.jsp</result>
+			<result>/jsp/register.jsp</result>
+		</action>
+		
+		<action name="homepage" class="login" method="home">
+			<interceptor-ref name="defaultLoginStack" />
+			
+			<result name="error">/error.jsp</result>
+			<result name="input">/jsp/login.jsp</result>
+			<result>/jsp/home.jsp</result>
+		</action>
+	</package>
+	
+	<package name="admin" extends="struts-default">
+	
+	</package>
+</struts>
