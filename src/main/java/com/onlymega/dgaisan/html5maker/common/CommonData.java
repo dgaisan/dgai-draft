@@ -9,6 +9,7 @@ public interface CommonData {
 	/*package*/ static final String ACTION_RESULT_LOGIN = "login_result";
 	
 	/*package*/ static final int BUFFER_SIZE = 2048;
-	/*package*/ static final String IMAGE_FOLDER = "temp_uploads";
+	/*package*/ static final String TEMP_FOLDER = "temp_uploads";
+	/*package*/ static final String ASSETS_PREFIX = "html5maker_assets_";
 	/*package*/ static final String DEFAULT_CONTEXT = "ROOT";
 }

@@ -48,14 +48,13 @@ public class SaveImageAction extends ActionSupport implements
 		int bytesRead = 0;
 		byte[] buffer = null;
 		
-		
 		try {
 			int tempFileLen = 0;
 			
 			stream = request.getInputStream();
 			newFileName = KeyGenerator.generateNameHash() + ".png";
-			fullPath = servletContext.getRealPath("/") + IMAGE_FOLDER + "/" + newFileName;
-			dir = new File(servletContext.getRealPath("/") + IMAGE_FOLDER);
+			fullPath = servletContext.getRealPath("/") + TEMP_FOLDER + "/" + newFileName;
+			dir = new File(servletContext.getRealPath("/") + TEMP_FOLDER);
 			file = new File(fullPath);
 			
 			if (!dir.exists()) {

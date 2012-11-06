@@ -1,5 +1,7 @@
 package com.onlymega.dgaisan.html5maker.actions;
 
+import java.util.HashMap;
+
 import junit.framework.TestCase;
 
 import org.mockito.ArgumentCaptor;
@@ -61,6 +63,7 @@ public class DownloadActionTest extends TestCase {
     	when(tempDataService.getDataByToken(token)).thenReturn(getTempDataObject());
     	
     	action.setDataToken(token);
+    	action.setSession(new HashMap<String, Object>());
     	result = action.execute();
     	assertEquals(Action.SUCCESS, result);
 	}
