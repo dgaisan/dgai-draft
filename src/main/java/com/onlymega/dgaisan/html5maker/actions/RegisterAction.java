@@ -1,34 +1,39 @@
 package com.onlymega.dgaisan.html5maker.actions;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.ActiveStatusEnum;
-import com.onlymega.dgaisan.html5maker.model.MembershipTypesEnum;
+import com.onlymega.dgaisan.html5maker.model.Membership;
 import com.onlymega.dgaisan.html5maker.model.User;
-import com.onlymega.dgaisan.html5maker.model.UserRoles;
 import com.onlymega.dgaisan.html5maker.model.VerifiedStatusEnum;
+import com.onlymega.dgaisan.html5maker.utils.StaticDebugger;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
 public class RegisterAction extends ActionSupport implements ModelDriven<User> {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2837183738L;
 	private static final Logger logger = Logger.getLogger(RegisterAction.class.getName());
 	
 	private UserDao userService;
+	private MembershipDao membershipService;
+	
 	private User user = new User();
 	
-	private Collection<String> availableMemberships;
+	private List<Membership> availableMemberships;
 	private String membership;
 	
-	private String registrationConfirmationToken;
+	public void validatePreregister() {
+		System.out.println("RegisterAction.validatePreregister()");
+		validateExecute();
+	}
 	
 	public void validateExecute() {
-		
+		System.out.println("RegisterAction.validateExecute()");
 		logger.log(Level.FINEST, user.toString());
 		
 		if (user.getLogin() == null || "".equals(user.getLogin())){
@@ -44,35 +49,41 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User> {
 		super.validate();
 	}
 	
-	public String initPage() throws Exception {
-		availableMemberships = new ArrayList<String>();
-		
-		for(MembershipTypesEnum t : MembershipTypesEnum.values()) {
-			availableMemberships.add(t.name());
+	public String preregister() {
+		System.out.println("RegisterAction.preregister()");
+
+		try {
+			availableMemberships = membershipService.getAvailableMemberships();
+		} catch (Exception e) {
+			// TODO: log this exception
+			System.out.println("Exception: ");
+			StaticDebugger.consoleLog(e); // debug
+			return ERROR;
 		}
-		
+		return SUCCESS;
+	}
+	
+	public String initPage() throws Exception {
 		return SUCCESS;
 	}
 	
 	@Override
 	public String execute() throws Exception {
 		try {
-			int userRole = 0;
-			
-			switch (MembershipTypesEnum.valueOf(getMembership())) {
-				case PREMIUM: 
-					userRole = UserRoles.PREMIUM_MEMBER.getValue();
-					break;
-				case LIMITED: 
-					userRole = UserRoles.LIMITED_MEMBER.getValue();
-			}
-			
-			user.setRole(userRole);
+			user.setRole(1);
 			user.setDateCreated(new Date());
 			user.setPass(getEncriptedPassword(user.getPass()));
 			user.setActive(ActiveStatusEnum.INACTIVE.getValue());
 			user.setVerified(VerifiedStatusEnum.NOT_VERIFIED.getValue());
+			user.setMembershipType(getMembershipId(getMembership()));
+			
+			System.out.println(user); //debug
+			//setUp account on the cloud
+			
 			userService.saveUser(user);
+			
+			// TODO send registration confirmation email!
+			
 		} catch (Exception ex) {
 			// log the errors
 			addActionError(ex.getMessage());
@@ -83,16 +94,19 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User> {
 		return SUCCESS;
 	}
 
-	/**
-	 * Action for confirming regisration.
-	 */
-	public void confirmRegistrationAction() {
-		logger.log(Level.SEVERE, "confirmRegistrationAction was called!");
-		System.out.println("syso()");
-		
+	private int getMembershipId(String membershipName) {
+		if (membershipName == null || membershipName.equals("")) {
+			return 0;
+		}
+		for (Membership m : availableMemberships) {
+			if (m.getName().equals(membershipName)) {
+				return m.getId();
+			}
+		}
+		return 0;
 	}
-	
-	public Collection<String> getAvailableMemberships() {
+
+	public List<Membership> getAvailableMemberships() {
 		return availableMemberships;
 	}
 	
@@ -104,6 +118,12 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User> {
 		return membership;
 	}
 	
+	public String getPassword() {
+		return user == null 
+			? "" 
+			: user.getPass();
+	}
+	
 	public User getModel() {
 		return user;
 	}
@@ -112,17 +132,13 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User> {
 		this.userService = userService;
 	}
 	
+	public void setMembershipService(MembershipDao membershipService) {
+		this.membershipService = membershipService;
+	}
+
 	private String getEncriptedPassword(String pass) {
-		// encript password
+		// TODO encript password
 		return pass;
 	}
 
-	public String getRegistrationConfirmationToken() {
-		return registrationConfirmationToken;
-	}
-	
-	public void setConfirmToken(String confirmToken) {
-		System.out.println("confirmtoken = " + confirmToken);
-		this.registrationConfirmationToken = confirmToken;
-	}
 }

@@ -1,5 +1,6 @@
 package com.onlymega.dgaisan.html5maker.actions;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +18,7 @@ import com.opensymphony.xwork2.ActionSupport;
  * @author Dmitri
  *
  */
-public class LoginAction extends ActionSupport implements CommonData {
+public class LoginAction extends ActionSupport {
 	private static final long serialVersionUID = 2111660865197084628L;
 	private static final Logger logger = Logger.getLogger(LoginAction.class.getName());
 	
@@ -71,8 +72,11 @@ public class LoginAction extends ActionSupport implements CommonData {
 		}
 	}
 	
-    public String execute() throws Exception {
+    @SuppressWarnings("unchecked")
+	public String execute() throws Exception {
     	Map<String, Object> session = null;
+    	
+    	System.out.println("LoginAction.execute()"); // debug
     	
     	try {
 			this.user = userService.getUserByLoginPass(this.login, this.password);
@@ -82,10 +86,23 @@ public class LoginAction extends ActionSupport implements CommonData {
 			}
 			
 			session = ServletActionContext.getContext().getSession();
-	    	session.put(USER_OBJECT, this.user);
-	    	session.put(LOGGED_IN, user.getRole());
-		}
-		catch (Exception ex) {
+	    	session.put(CommonData.USER_OBJECT, this.user);
+	    	session.put(CommonData.LOGGED_IN, user.getRole());
+	    	
+	    	if (this.user.getRole() == 0) {
+	    		return (CommonData.ADMIN);
+	    	}
+	    	
+	    	Collection<String> dataIds = 
+	    		(Collection<String>) session.get(CommonData.DATA_ID);
+	    	
+	    	if (dataIds != null && !dataIds.isEmpty()) {
+	    		// User has pending banners that need to be saved
+	    		// TODO: save banner in cloud
+	    		return CommonData.SAVE_BANNERS;
+	    	}
+
+		} catch (Exception ex) {
 			logger.logp(Level.SEVERE, LoginAction.class.getName(), "execute()", ex.getMessage(), ex);
 			
 			getActionErrors().clear();
@@ -100,10 +117,6 @@ public class LoginAction extends ActionSupport implements CommonData {
 			return ERROR;
 		}
     	
-    	if (this.user.getRole() == 0) {
-    		return (ADMIN);
-    	}
-    	
         return SUCCESS;
     }
     
@@ -117,13 +130,15 @@ public class LoginAction extends ActionSupport implements CommonData {
     		
     	User user = null;
     	
+    	System.out.println("LoginAction.logout()");
+    	
     	try {
     		session = ServletActionContext.getContext().getSession();
     		user  = (User) session.get("theUser");
     		
     		if (user != null) {
-    			session.remove(USER_OBJECT);
-    			session.remove(LOGGED_IN);
+    			session.remove(CommonData.USER_OBJECT);
+    			session.remove(CommonData.LOGGED_IN);
     			user = null;
     		}
     	} catch (Exception ex) {

@@ -10,6 +10,9 @@
 	<bean	id = "tempDataServiceImpl" 
 			class = "com.onlymega.dgaisan.html5maker.dao.impl.TempDataDaoImpl"/>
 
+	<bean 	id = "membershipServiceImpl"
+			class = "com.onlymega.dgaisan.html5maker.dao.impl.MembershipDaoImpl" />
+
     <bean 	id = "login"
     		class = "com.onlymega.dgaisan.html5maker.actions.LoginAction" 
     		singleton = "false" >
@@ -19,7 +22,9 @@
 
 	<bean 	id = "register"
 			class = "com.onlymega.dgaisan.html5maker.actions.RegisterAction" >
+		
 		<property name="userService" ref="userServiceImpl" />
+		<property name="membershipService" ref="membershipServiceImpl" />
 	</bean>
 	
 	<bean 	id = "saveImage" 
@@ -35,5 +40,10 @@
 			class = "com.onlymega.dgaisan.html5maker.actions.DownloadAction">
 			
 		<property name="tempDataService" ref="tempDataServiceImpl" />
+	</bean>
+	
+	<bean	id = "saveBanner"
+			class="com.onlymega.dgaisan.html5maker.actions.SaveBannerAction">
+		
 	</bean>
 </beans>

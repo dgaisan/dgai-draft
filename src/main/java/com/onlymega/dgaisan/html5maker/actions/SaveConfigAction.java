@@ -9,10 +9,13 @@ import org.apache.struts2.interceptor.ServletResponseAware;
 import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
 import com.onlymega.dgaisan.html5maker.model.TempData;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
+
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
- * 
+ * A service that gets json and html raw data from the client
+ * and saved it on the database. It also returns a data token
+ * that's assigned to this data entry on the database.
  * 
  * @author Dmitri Gaisan
  *
@@ -28,8 +31,6 @@ public class SaveConfigAction extends ActionSupport implements ServletResponseAw
 	
 	public void validate() {
 		System.out.println("validating SaveConfigAction");
-		System.out.println("json: " + json);
-		System.out.println("html: " + html);
 		//TODO validate incoming data
 	}
 	
@@ -52,7 +53,7 @@ public class SaveConfigAction extends ActionSupport implements ServletResponseAw
 			}
 		} finally {
 			try {
-				response.getWriter().println(ret);
+				response.getWriter().print(ret);
 				response.getWriter().close();
 			} catch (Exception e) {
 				// TODO log this exception

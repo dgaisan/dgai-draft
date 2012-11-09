@@ -26,12 +26,16 @@ public class AuthenticationIntercepter extends AbstractInterceptor implements Co
 		ActionContext actionContext = invocation.getInvocationContext();
 		User user = (User) actionContext.getSession().get(USER_OBJECT);
 		
+		System.out.println("AuthenticationIntercepter.intercept()");
+		
 		if (user == null) {
 			logger.log(Level.FINEST, "Interceptor: user is null!");
 			
+			System.out.println("User == null");
+			
 			return ACTION_RESULT_LOGIN;
 		} 
-			
+		System.out.println("User != null");
 		
 		return invocation.invoke();
 	}

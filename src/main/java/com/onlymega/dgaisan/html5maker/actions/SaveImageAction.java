@@ -53,9 +53,13 @@ public class SaveImageAction extends ActionSupport implements
 			
 			stream = request.getInputStream();
 			newFileName = KeyGenerator.generateNameHash() + ".png";
-			fullPath = servletContext.getRealPath("/") + TEMP_FOLDER + "/" + newFileName;
-			dir = new File(servletContext.getRealPath("/") + TEMP_FOLDER);
-			file = new File(fullPath);
+			
+			fullPath = servletContext.getRealPath("/") + TEMP_FOLDER + File.separator + newFileName;
+			String dirFileName = servletContext.getRealPath("/") + TEMP_FOLDER;
+
+			dir = new File(dirFileName);
+			file = new File(dirFileName, newFileName);
+			System.out.println("fullPath: " + fullPath);
 			
 			if (!dir.exists()) {
 				dir.mkdir();
@@ -74,14 +78,19 @@ public class SaveImageAction extends ActionSupport implements
 				tempFileLen += bytesRead;
 			}
 			fios.flush();
+			fios.close();
 		} catch (Exception ex) {
-			System.out.println("Exception!");
-			System.out.println(ex);
+			// TODO Log the exception
+			System.out.println("Exception! in SaveImageAction");
+			for (StackTraceElement el : ex.getStackTrace()) {
+				System.out.println(el.toString());
+			}
 		} finally {
 			try {
-				response.getWriter().println(newFileName);
+				response.getWriter().print(newFileName);
 				response.getWriter().close();
 			} catch (Exception e) {
+				// TODO Log the exception
 				System.out.println("Error sending the response");
 				System.out.println(e);
 			}

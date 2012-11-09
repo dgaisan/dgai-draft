@@ -8,10 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -33,13 +34,13 @@ import com.opensymphony.xwork2.ActionSupport;
 
 public class DownloadAction extends ActionSupport implements
 	SessionAware,
-	ServletContextAware,
-	CommonData {
+	ServletContextAware {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Collection<String> invalidTokens;
 	
 	private String dataToken;
+	private String zipFileName;
 	private TempDataDao tempDataService;
 	
 	private Map<String, Object> session;
@@ -63,7 +64,6 @@ public class DownloadAction extends ActionSupport implements
 	@Override
 	public String execute() throws Exception {
 		TempData data = null;
-		
 		Collection<String> dataIds = null;
 		
 		try {
@@ -72,25 +72,29 @@ public class DownloadAction extends ActionSupport implements
 				return ERROR;
 			}
 			
-			dataIds = (Collection<String>) session.get(DATA_ID);
+			dataIds = (Collection<String>) session.get(CommonData.DATA_ID);
 			if (dataIds == null || dataIds.isEmpty()) {
 				dataIds = new ArrayList<String>();
 			}
 			
 			dataIds.add(Integer.toString(data.getDataId()));
-			session.put(DATA_ID, dataIds);
-			
-			
+			session.put(CommonData.DATA_ID, dataIds);
 			
 			// create zip
 			zipFileName = new ZipPackage(data).create();
+			//new ZipPackage(data);
 			
-			System.out.println(zipFileName);
-			
+			System.out.println("ZipFileName: " + zipFileName);
 			
 		} catch (Exception ex) {
 			getActionErrors().clear();
 			addActionError(ex.getMessage());
+			
+			for (StackTraceElement elem : ex.getStackTrace()) {
+				//DEBUG
+				addActionError(elem.toString());
+			}
+			
 			// TODO log the error
 			return ERROR;
 		}
@@ -98,12 +102,9 @@ public class DownloadAction extends ActionSupport implements
 		return SUCCESS;
 	}
  
-	private String zipFileName;
-	
 	public String getZip() {
 		return zipFileName;
 	}
-	
 	
 	public void setDataToken(String dataToken) {
 		this.dataToken = dataToken;
@@ -131,10 +132,15 @@ public class DownloadAction extends ActionSupport implements
 
 	// TODO move to a separate file
 	// and inject using IoC
+	// TODO: check if ZIp file exists then return it
+	// instead of creating a new one.
 	private class ZipPackage {
 		private String html;
 		private String outputDirName;
-		private String tempDirName = context.getRealPath("/") + TEMP_FOLDER;
+		
+		private String tempDirName = context.getRealPath("/") + CommonData.TEMP_FOLDER;
+		private String assetsDirName = CommonData.ASSETS_PREFIX + getDataToken();
+		private String zipFolderName = "html5maker" + getDataToken();
 		
 		private String outputEmbedFileName;
 		private String outputBannerFileName;
@@ -144,22 +150,24 @@ public class DownloadAction extends ActionSupport implements
 		private File outputBannerFile;
 		private File outputAssetsDir;
 		
-		private String outputZipName = "";
-		
 		private TempData data;
+		private List<String> imageNames;
 		
 		private ZipOutputStream zop;
-
+		private String outputZipName = "";
+		
 		public ZipPackage(TempData data) throws Exception {
 			this.data = data;
+			
+			
 			
 			html = 
 				data.getEmbedCode()
 				.replace("stringtoreplace", 
-						ASSETS_PREFIX + getDataToken());
+						CommonData.ASSETS_PREFIX + getDataToken());
 			
-			outputDirName = tempDirName + "/html5maker" + getDataToken();
-			outputZipName = tempDirName + "/html5maker" + getDataToken() + ".zip";
+			outputDirName = tempDirName + File.separator + zipFolderName;
+			outputZipName = outputDirName + ".zip";
 			
 			System.out.println("outputDirName: " + outputDirName);
 			
@@ -170,14 +178,10 @@ public class DownloadAction extends ActionSupport implements
 			}
 			outputDir.mkdir();
 			
-			outputEmbedFileName = outputDirName + "/embed.html";
-			outputBannerFileName = outputDirName + "/banner.html";
-			outputAssetsDirName = outputDirName + "/" + ASSETS_PREFIX + getDataToken();
+			outputEmbedFileName = outputDirName + File.separator + "embed.html";
+			outputBannerFileName = outputDirName + File.separator + "banner.html";
+			outputAssetsDirName = outputDirName + File.separator + CommonData.ASSETS_PREFIX + getDataToken();
 				
-			System.out.println("outputEmbedFileName: " + outputEmbedFileName);
-			System.out.println("outputBannerFileName: " + outputBannerFileName);
-			System.out.println("outputAssetsDirName: " + outputAssetsDirName);
-			
 			outputEmbedFile = new File(outputEmbedFileName);
 			outputBannerFile = new File (outputBannerFileName);
 			outputAssetsDir = new File(outputAssetsDirName);
@@ -185,7 +189,6 @@ public class DownloadAction extends ActionSupport implements
 			outputEmbedFile.createNewFile();
 			outputBannerFile.createNewFile();
 			outputAssetsDir.mkdir();
-			
 		
 			String outputHtml = 
 				MessageFormat.format(getText("html_template"), html);
@@ -202,8 +205,41 @@ public class DownloadAction extends ActionSupport implements
 			bannerWriter.close();
 			embedWriter.flush();
 			embedWriter.close();
+			
+			imageNames = getImageNamesFromJson();
+			for (final String imageName : imageNames) {
+				File tempDirFile = new File(tempDirName);
+				File dest = new File(outputAssetsDirName, imageName);
+				File src = new File(tempDirFile, imageName);
+				
+				//copyFile(src, dest);
+				FileUtils.copyFile(src, dest);
+			}
 		}
-		
+				
+		/**
+		 * Creates a zip file on the file system.
+		 * 
+		 * @return the absolute web path to the zip file
+		 * @throws Exception
+		 */
+		public String create() throws Exception {
+			this.zop = new ZipOutputStream(new FileOutputStream(new File(outputZipName)));
+			
+			addFileToZip("banner.html", outputBannerFileName, zop);
+			addFileToZip("embed.html", outputEmbedFileName, zop);
+			
+			for (final String imageName : imageNames) {
+				addFileToZip(assetsDirName + File.separator + imageName, 
+						outputAssetsDirName + File.separator + imageName, zop);
+			}
+
+			zop.flush();
+			zop.close();
+
+			return CommonData.TEMP_FOLDER + "/" + zipFolderName + ".zip";
+		}
+
 		/**
 		 * Add a new entity(file) to a zip archive.
 		 *
@@ -215,7 +251,6 @@ public class DownloadAction extends ActionSupport implements
 		 */
 		private void addFileToZip(String fileName, String fileDest, ZipOutputStream zos)
 	    	throws FileNotFoundException, IOException {
-		    System.out.println(fileName);
 			
 			zos.putNextEntry(new ZipEntry(fileName));
 		 
@@ -226,7 +261,7 @@ public class DownloadAction extends ActionSupport implements
 						file));
 
 				long bytesRead = 0;
-				byte[] bytesIn = new byte[ 1024];
+				byte[] bytesIn = new byte[ CommonData.BUFFER_SIZE];
 				int read = 0;
 
 				while ((read = bis.read(bytesIn)) != -1) {
@@ -236,43 +271,6 @@ public class DownloadAction extends ActionSupport implements
 			}
 		 
 		    zos.closeEntry();
-		}
-		
-		/**
-		 * Creates a zip file on the file system.
-		 * 
-		 * @return the absolute web path to the zip file
-		 * @throws Exception
-		 */
-		public String create() throws Exception {
-			List<String> imageNames = null;
-			String assetsDirName = ASSETS_PREFIX + getDataToken();
-			
-			this.zop = new ZipOutputStream(new FileOutputStream(new File(outputZipName)));
-			
-			addFileToZip("banner.html", outputBannerFileName, zop);
-			addFileToZip("embed.html", outputEmbedFileName, zop);
-			
-			imageNames = getImageNamesFromJson();
-			
-			for (String imageName : imageNames) {
-				String srcImagePath = tempDirName + "/" + imageName;
-				String destImgPath = tempDirName + "/" + assetsDirName + "/" + imageName;
-				File src = new File(srcImagePath);
-				File dest = new File(destImgPath);
-				
-				System.out.println("srcImagePath: " + srcImagePath);
-				System.out.println("destImgPath: " + destImgPath);
-				
-				FileUtils.copyFile(src, dest);
-				addFileToZip(assetsDirName + "/" + imageName, 
-						outputAssetsDirName + "/" + imageName, zop);
-			}
-			
-			zop.flush();
-			zop.close();
-			
-			return outputZipName;
 		}
 		
 		private List<String> getImageNamesFromJson() throws JSONException {

@@ -19,7 +19,8 @@ public class User implements Serializable {
 	private Date dateCreated;
 	private short verified;
 	private short active;
-	int role;
+	private int role;
+	private int membershipType;
 	
 	public User() {}
 	
@@ -86,9 +87,18 @@ public class User implements Serializable {
 		return active;
 	}
 
+	public void setMembershipType(int membershipType) {
+		this.membershipType = membershipType;
+	}
+
+	public int getMembershipType() {
+		return membershipType;
+	}
+
 	@Override
 	public String toString() {
 		return login + ", " + pass + ", " +
-			userName + ", " + role;
+			userName + ", " + role + ", " +
+			membershipType;
 	}
 }

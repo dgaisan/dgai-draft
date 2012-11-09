@@ -7,14 +7,21 @@ public enum UserRoles {
 	ADMIN(0), 
 	
 	/**
-	 * Premium member, with paid subscription
-	 */
-	PREMIUM_MEMBER(1), 
-	
-	/**
 	 * Member with a free/limited subscription
 	 */
-	LIMITED_MEMBER(2);
+	LIMITED_MEMBER(1),
+	
+	
+	/**
+	 * Premium member, with paid subscription
+	 */
+	PREMIUM_MEMBER(2),
+	
+	/**
+	 * Extended Premium member, with paid subscription
+	 */
+	EXTENDED_PREMIUM_MEMBER(3); 
+	
 	
 	private int value;
 	

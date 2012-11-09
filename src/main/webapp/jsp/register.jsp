@@ -11,16 +11,13 @@
 </head>
 <body>
 	<s:if test="%{#session['loggedin'] != null}">
-		<% response.sendRedirect(request.getContextPath() + "/jsp/index.jsp"); %>
+		<% response.sendRedirect(request.getContextPath() + "/jsp/home.jsp"); %>
 	</s:if>
 
-	Hello <s:property value="%{#session['theUser'].userName}"/>, <br/>
-
-	<s:form action="register">
+	<s:form action="preregister">
 		<s:textfield key="login" name="login" />
 		<s:textfield key="password" name="pass" />
-		<s:textfield key="username" name="userName" />
-		<s:select list="availableMemberships" name="membership" key="membership"></s:select>
+		<s:textfield key="username" name="userName" />		
 		<s:submit />
 	</s:form>
 
