@@ -5,12 +5,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.ActiveStatusEnum;
 import com.onlymega.dgaisan.html5maker.model.Membership;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.model.VerifiedStatusEnum;
+import com.onlymega.dgaisan.html5maker.utils.EmailService;
+import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
+import com.onlymega.dgaisan.html5maker.utils.MD5Util;
 import com.onlymega.dgaisan.html5maker.utils.StaticDebugger;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
@@ -25,33 +29,76 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User> {
 	private User user = new User();
 	
 	private List<Membership> availableMemberships;
-	private String membership;
 	
-	public void validatePreregister() {
-		System.out.println("RegisterAction.validatePreregister()");
+	private String membership;
+	private String passRep;
+	
+	
+	public void validateRegisterFree() throws Exception {
+		System.out.println("RegisterAction.validateRegisterFree()");
+		
+		getFieldErrors().clear();
 		validateExecute();
+		
+		if (getPassRep() == null || getPassRep().equals("")) {
+			addFieldError("passRep", "register.error.missing_pass");
+		}
+		System.out.println(getPassRep());
+		System.out.println(user.getPass());
+		if (!getPassRep().equals(user.getPass())) {
+			addFieldError("passRep", "register.error.password_not_matching");
+		}
 	}
 	
 	public void validateExecute() {
 		System.out.println("RegisterAction.validateExecute()");
 		logger.log(Level.FINEST, user.toString());
 		
+		getFieldErrors().clear();
+		
 		if (user.getLogin() == null || "".equals(user.getLogin())){
-			addFieldError("login", "error.missing_login");
+			addFieldError("login", "register.error.missing_login");
 		}
 		if (user.getPass() == null || "".equals(user.getPass())) {
-			addFieldError("password", "error.missing_pass");
-		}
-		if (user.getUserName() == null || "".equals(user.getUserName())) {
-			addFieldError("username", "error.missing_username");
+			addFieldError("pass", "register.error.missing_pass");
 		}
 		
 		super.validate();
 	}
 	
+	/**
+	 * This action is associated with the option that was chosen
+	 * on membership page. The view is returned depending on 
+	 * what type of account was picked (free or any of paid accounts).
+	 * 
+	 * @return <pre> <b>INPUT</b>, if provided membership type does not exists,
+	 * <b>{@link CommonData#FREE_MEMBERSHIP}</b> if the a free membership
+	 * options was picked,
+	 * <b>SUCCESS</b> - otherwise (paid membership) </pre>
+	 */
 	public String preregister() {
 		System.out.println("RegisterAction.preregister()");
-
+		
+		if (getMembershipId(membership) == 0) {
+			System.out.println("Attempted to enter wrong membership type.");
+			return INPUT;
+		}
+		
+		if (CommonData.FREE_MEMBERSHIP.equals(membership)) {
+			return CommonData.FREE_MEMBERSHIP;
+		}
+		
+		return SUCCESS;
+	}		
+	
+	/**
+	 * This action is associated with Memberships page.
+	 * 
+	 * @return {@link String} result
+	 * @throws Exception
+	 */
+	public String membershipPage() throws Exception {
+		System.out.println("RegisterAction.membershipPage()");
 		try {
 			availableMemberships = membershipService.getAvailableMemberships();
 		} catch (Exception e) {
@@ -60,21 +107,61 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User> {
 			StaticDebugger.consoleLog(e); // debug
 			return ERROR;
 		}
+
 		return SUCCESS;
 	}
 	
-	public String initPage() throws Exception {
+	/**
+	 * Action that's associated with free users.
+	 * It saves a user as a not activated user 
+	 * 
+	 * @return result
+	 */
+	public String registerFree() {
+		System.out.println("RegisterAction.registerFree()");
+		
+		try {
+			user.setRole(1);
+			user.setDateCreated(new Date());
+			user.setLogin(user.getLogin());
+			user.setPass(getEncriptedPassword(user.getPass()));
+			user.setActive(ActiveStatusEnum.INACTIVE.getValue());
+			user.setVerified(VerifiedStatusEnum.NOT_VERIFIED.getValue());
+			user.setMembershipType(getMembershipId(getMembership()));
+			
+			userService.saveUser(user);
+			
+			System.out.println(user); //debug
+			
+			// TODO: generate new key, associate with new user and save it in DB
+			System.out.println("registration code: " + 
+					KeyGenerator.generateRegistrationConfirmationCode());
+			
+			EmailService.sendRegistrationConfirmationEmail("dima.gaisan@gmail.com", 
+					KeyGenerator.generateRegistrationConfirmationCode());
+			
+		} catch (Exception e) {
+			System.out.println("Exception: ");
+			StaticDebugger.consoleLog(e);
+			
+			return ERROR;
+		}
+		
+		
 		return SUCCESS;
 	}
 	
+	/**
+	 * Action that's responsible for processing premium users
+	 */
 	@Override
 	public String execute() throws Exception {
 		try {
 			user.setRole(1);
 			user.setDateCreated(new Date());
 			user.setPass(getEncriptedPassword(user.getPass()));
-			user.setActive(ActiveStatusEnum.INACTIVE.getValue());
-			user.setVerified(VerifiedStatusEnum.NOT_VERIFIED.getValue());
+			user.setActive(ActiveStatusEnum.ACTIVE.getValue());
+			user.setVerified(VerifiedStatusEnum.VERIFIED.getValue());
 			user.setMembershipType(getMembershipId(getMembership()));
 			
 			System.out.println(user); //debug
@@ -136,9 +223,16 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User> {
 		this.membershipService = membershipService;
 	}
 
-	private String getEncriptedPassword(String pass) {
-		// TODO encript password
-		return pass;
+	public void setPassRep(String passRep) {
+		this.passRep = passRep;
+	}
+
+	public String getPassRep() {
+		return passRep;
+	}
+	
+	private String getEncriptedPassword(String pass) throws Exception {
+		return MD5Util.convertIntoMD5(pass);
 	}
 
 }

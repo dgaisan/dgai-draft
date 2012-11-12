@@ -13,18 +13,24 @@
 	<s:actionerror/>
 
 	<s:if test="%{#session['loggedin'] != null}">
-		Hello <s:property value="%{#session['theUser'].userName}"/> <br/>
+		<% response.sendRedirect(request.getContextPath() + "/jsp/home.jsp"); %>
 	</s:if>
-	<s:else>
-		<s:form action="login">
-			<s:textfield key="login" name="login" />
-			<s:password key="password" name="password" />
-			<s:submit />
-		</s:form>
-	</s:else>
+		
+	<s:if test="%{#session['login_attempts'] > 1}">
+		THIS TIME Captcha is supposed to be displayed.
+		<!--TODO : reCaptcha-->
+	</s:if>
+
+
+	<s:form action="login">
+		<s:textfield key="login" name="login" />
+		<s:password key="password" name="password" />
+		<s:submit />
+	</s:form>
+
 	<hr />
 	<br />
-	<s:a action="registerpage">Need Account? Click here to register</s:a>
+	<s:a action="memberships">Need Account? Click here to register</s:a>
 </body>
 </html>
 	

@@ -1,5 +1,7 @@
 package com.onlymega.dgaisan.html5maker.dao.impl;
 
+import java.io.Serializable;
+
 import org.hibernate.Session;
 
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
@@ -35,13 +37,16 @@ public class UserDaoImpl implements UserDao {
 		return user;
 	}
 
-	public void saveUser(User user) throws Exception {
+	public void saveUser(final User user) throws Exception {
 		Session session = null;
+		User toBeSaved = new User(user);
+		
+		System.out.println("UserDaoImpl.saveUser()");
 		
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			session.getTransaction().begin();
-			session.save(user);
+			session.save(toBeSaved);
 			session.getTransaction().commit();
 		} catch (Exception ex) {
 			// log exception
@@ -52,6 +57,8 @@ public class UserDaoImpl implements UserDao {
 				session.close();
 			}
 		}
+		
+		System.out.println("generated ID: " + toBeSaved.getUserId());
 	}
 	                        
 }

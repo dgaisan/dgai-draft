@@ -70,13 +70,25 @@
 			<result>jsp/login.jsp</result>
 		</action>
 
-		<action name="preregister" class="register" method="preregister">
-			<result name="input">/jsp/register.jsp</result>
+		<action name="memberships" class="register" method="membershipPage">
 			<result name="error">/error.jsp</result>
-			<result>/jsp/memberships.jsp</result>
+			<result>/WEB-INF/jsp/memberships.jsp</result>
 		</action>
 
-		<action name="register" class="register">
+		<action name="register" class="register" method="preregister">
+			<result name="input">/WEB-INF/jsp/memberships.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result name="Free">/WEB-INF/jsp/register_free.jsp</result>
+			<result>/WEB-INF/jsp/register.jsp</result>
+		</action>
+
+		<action name="register/free" class="register" method="registerFree">
+			<result name="input">/WEB-INF/jsp/register_free.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result>/WEB-INF/jsp/confirm_registration.jsp</result>
+		</action>
+
+		<action name="register/complete" class="register">
 			<result name="input">/jsp/register.jsp</result>
 			<result name="error">/error.jsp</result>
 			<result type="chain">
@@ -113,14 +125,8 @@
 			<result name="login_result" type="redirectAction" >
 				<param name="actionName">index</param>
 			</result>
-			
 		</action>
 
-		<action name="registerpage" class="register" method="initPage">
-			<result name="error">/error.jsp</result>
-			<result name="input">/jsp/login.jsp</result>
-			<result>/jsp/register.jsp</result>
-		</action>
 		
 		<action name="homepage" class="login" method="home">
 			<interceptor-ref name="defaultLoginStack" />

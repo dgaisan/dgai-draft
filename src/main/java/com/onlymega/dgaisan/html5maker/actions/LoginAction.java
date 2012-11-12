@@ -15,7 +15,7 @@ import com.opensymphony.xwork2.ActionSupport;
 /**
  * User login/logout actions.
  * 
- * @author Dmitri
+ * @author Dmitri Gaisan
  *
  */
 public class LoginAction extends ActionSupport {
@@ -80,12 +80,23 @@ public class LoginAction extends ActionSupport {
     	
     	try {
 			this.user = userService.getUserByLoginPass(this.login, this.password);
+			session = ServletActionContext.getContext().getSession();
+			
 			if (this.user == null) {
 				addActionError(getText("error.user_not_exists"));
+				
+				Integer loginAttempts = (Integer) session.get(CommonData.MULTIPLE_LOGIN_ATTEMPTS);
+				
+				if (loginAttempts == null) {
+					loginAttempts = 0;
+				}
+				loginAttempts++;
+				session.put(CommonData.MULTIPLE_LOGIN_ATTEMPTS, loginAttempts);
+				
 				return INPUT;
 			}
 			
-			session = ServletActionContext.getContext().getSession();
+			session.remove(CommonData.MULTIPLE_LOGIN_ATTEMPTS);
 	    	session.put(CommonData.USER_OBJECT, this.user);
 	    	session.put(CommonData.LOGGED_IN, user.getRole());
 	    	

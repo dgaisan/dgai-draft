@@ -1,7 +1,7 @@
 package com.onlymega.dgaisan.html5maker.utils;
 
 /**
- * Utility class for generating a user key.
+ * Utility class for generating random keys.
  * 
  * @author Dmitri Gaisan
  *
@@ -42,15 +42,31 @@ public class KeyGenerator {
 	 * @return (13-16) character hash name.
 	 */
 	public static String generateNameHash() {
+		return generateData(AVG_NAME_SIZE + sizeDiff);
+	}
+	
+	public static String generateRegistrationConfirmationCode() {
+		return generateData(31);
+	}
+	
+	/**
+	 * Method for generating a name hash.
+	 * 
+	 * @return (13-16) character hash name.
+	 */
+	private static String generateData(int length) {
 		String ret = "";
 		
-		for (int i = 0; i < AVG_NAME_SIZE + sizeDiff; i++) {
+		for (int i = 0; i < length; i++) {
 			int table = (int)(Math.random() * 3);
-			if (table == 0) {
+			switch (table) {
+			case 0:
 				ret += alphabet[ (int)(Math.random() * alphabet.length)];
-			} else if (table == 1) {
+				break;
+			case 1:
 				ret += alphaBlur[ (int)(Math.random() * alphaBlur.length)];
-			} else {
+				break;
+			default:
 				ret += alphabet[ (int)(Math.random() * alphabet.length)].toUpperCase();
 			}
 		}

@@ -6,14 +6,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-		<title>Home</title>
+		<title>Dashboard</title>
 		<s:head />
 	</head>
 	<body>
-		<s:if test="%{#session['loggedin'] != null}">
-			Hello <s:property value="%{#session['theUser'].userName}"/> <br/>
-			<div style = "float: right"><a href = "logout.action">Logout</a></div>
+		<s:if test="%{#session['loggedin'] == null}">
+			<% response.sendRedirect(request.getContextPath() + "/jsp/login.jsp"); %>
 		</s:if>
+		
+		Hello <s:property value="%{#session['theUser'].userName}"/> <br/>
+		<div style = "float: right"><a href = "logout.action">Logout</a></div>
 		
 	</body>
 </html>

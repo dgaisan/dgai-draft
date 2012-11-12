@@ -28,8 +28,18 @@ public class User implements Serializable {
 		this.userId = userId;
 		this.login = login;
 		this.pass = pass;
-		this.userName = userName;
 		this.dateCreated = dateCreated;
+	}
+	
+	public User(User user) {
+		this.userId = user.getUserId();
+		this.login = user.getLogin();
+		this.pass = user.getPass();
+		this.dateCreated = user.getDateCreated();
+		this.membershipType = user.getMembershipType();
+		this.role = user.getRole();
+		this.verified = user.getVerified();
+		this.active = user.getActive();
 	}
 	
 	public int getUserId() {

@@ -7,6 +7,7 @@ public interface CommonData {
 	/*package*/ static final String LOGGED_IN = "loggedin";
 	/*package*/ static final String USER_OBJECT = "theUser";
 	/*package*/ static final String DATA_ID = "data_ids";
+	/*package*/ static final String MULTIPLE_LOGIN_ATTEMPTS = "login_attempts";
 
 	// Result types:
 
@@ -20,5 +21,6 @@ public interface CommonData {
 	/*package*/ static final String TEMP_FOLDER = "temp_uploads";
 	/*package*/ static final String ASSETS_PREFIX = "html5maker_assets_";
 	/*package*/ static final String DEFAULT_CONTEXT = "ROOT";
+	/*package*/ static final String FREE_MEMBERSHIP = "Free";
 	
 }
