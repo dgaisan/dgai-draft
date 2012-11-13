@@ -26,7 +26,9 @@ public class EmailService {
 	 * @param recepient
 	 * @param confirmationToken
 	 */
-	public static void sendRegistrationConfirmationEmail(String recepient, String confirmationToken) {
+	public static void sendRegistrationConfirmationEmail(String recepient, String confirmationToken) 
+		throws AddressException, MessagingException, Exception {
+		
 		Properties prop = new Properties();
 		
 		System.out.println("EmailService.sendRegistrationConfirmationEmail()"); // debug
@@ -43,12 +45,11 @@ public class EmailService {
 			}
 		});
 		
-		String url = "http://localhost:8080/draft-struts/confirmation/";
+		String url = "http://localhost:8080/draft-struts/registration/confirmation/";
 		String msgBody = "Confirm your account:" 
 			+ url + confirmationToken + ".html"; // TODO read from resource file.
 		String msgSubject = "Account confirmation";
 		
-        try {
             Message msg = new MimeMessage(session);
             
             msg.setFrom(new InternetAddress("html5maker@onlymega.com", "html5maker@onlymega.com"));
@@ -58,15 +59,5 @@ public class EmailService {
             msg.setText(msgBody);
             Transport.send(msg);
 
-        } catch (AddressException e) {
-        	System.out.println("AddressException:");
-        	StaticDebugger.consoleLog(e);
-        } catch (MessagingException e) {
-        	System.out.println("MessagingException:");
-        	StaticDebugger.consoleLog(e);
-        } catch (Exception e) {
-        	System.out.println("Exception:");
-        	StaticDebugger.consoleLog(e);
-		}
 	}
 }

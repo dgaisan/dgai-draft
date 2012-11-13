@@ -11,7 +11,7 @@
 </head>
 <body>
 
-
+Confirmation Email was sent on <s:property value="login" />
 
 </body>
 </html>

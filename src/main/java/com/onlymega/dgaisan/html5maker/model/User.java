@@ -17,8 +17,8 @@ public class User implements Serializable {
 	private String pass;
 	private String userName;
 	private Date dateCreated;
-	private short verified;
-	private short active;
+	private int verified;
+	private int active;
 	private int role;
 	private int membershipType;
 	
@@ -85,7 +85,7 @@ public class User implements Serializable {
 		this.verified = verified;
 	}
 
-	public short getVerified() {
+	public int getVerified() {
 		return verified;
 	}
 
@@ -93,7 +93,7 @@ public class User implements Serializable {
 		this.active = active;
 	}
 
-	public short getActive() {
+	public int getActive() {
 		return active;
 	}
 
@@ -108,7 +108,7 @@ public class User implements Serializable {
 	@Override
 	public String toString() {
 		return login + ", " + pass + ", " +
-			userName + ", " + role + ", " +
+			", " + role + ", " +
 			membershipType;
 	}
 }

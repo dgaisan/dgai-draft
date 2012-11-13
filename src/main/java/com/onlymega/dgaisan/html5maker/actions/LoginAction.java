@@ -5,12 +5,26 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+
+import net.tanesha.recaptcha.ReCaptchaFactory;
+import net.tanesha.recaptcha.ReCaptchaImpl;
+import net.tanesha.recaptcha.ReCaptchaResponse;
+
 import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.interceptor.RequestAware;
+import org.apache.struts2.interceptor.ServletRequestAware;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
+import com.onlymega.dgaisan.html5maker.model.ActiveStatusEnum;
 import com.onlymega.dgaisan.html5maker.model.User;
+import com.onlymega.dgaisan.html5maker.model.VerifiedStatusEnum;
+import com.onlymega.dgaisan.html5maker.utils.MD5Util;
+import com.onlymega.dgaisan.html5maker.utils.StaticDebugger;
 import com.opensymphony.xwork2.ActionSupport;
+
+
 
 /**
  * User login/logout actions.
@@ -18,7 +32,7 @@ import com.opensymphony.xwork2.ActionSupport;
  * @author Dmitri Gaisan
  *
  */
-public class LoginAction extends ActionSupport {
+public class LoginAction extends ActionSupport implements ServletRequestAware {
 	private static final long serialVersionUID = 2111660865197084628L;
 	private static final Logger logger = Logger.getLogger(LoginAction.class.getName());
 	
@@ -27,6 +41,8 @@ public class LoginAction extends ActionSupport {
 	
 	private String login;
 	private String password;
+	
+	private HttpServletRequest request;
 	
 	/**
 	 * logger initializer
@@ -64,11 +80,14 @@ public class LoginAction extends ActionSupport {
 	 * Validating a user
 	 */
 	public void validateExecute() {
+		clearActionErrors();
+		clearFieldErrors();
+		
 		if (login == null || "".equals(login)) {
-			addFieldError("login", "error.missing_login");
+			addFieldError("login", getText("login.error.missing_login"));
 		}
 		if (password == null || "".equals(password)) {
-			addFieldError("password", "error.missing_pass");
+			addFieldError("password", getText("login.error.missing_pass"));
 		}
 	}
 	
@@ -76,23 +95,58 @@ public class LoginAction extends ActionSupport {
 	public String execute() throws Exception {
     	Map<String, Object> session = null;
     	
+    	clearActionErrors();
     	System.out.println("LoginAction.execute()"); // debug
     	
     	try {
-			this.user = userService.getUserByLoginPass(this.login, this.password);
-			session = ServletActionContext.getContext().getSession();
-			
+    		session = ServletActionContext.getContext().getSession();
+    		
+    		Integer loginAttempts = 
+    			(Integer) session.get(CommonData.MULTIPLE_LOGIN_ATTEMPTS);
+
+    		
+    		if (loginAttempts != null && loginAttempts > 1) {
+    			// Validate reCaptcha
+    			String remoteAddr = request.getRemoteAddr();
+    			ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
+    			reCaptcha.setPrivateKey(getText("login.reCaptcha.private.key"));
+
+    			String challenge = request.getParameter("recaptcha_challenge_field");
+    			String uresponse = request.getParameter("recaptcha_response_field");
+    			ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(remoteAddr, challenge, uresponse);
+
+    			System.out.println("challenge: " + challenge); // debug
+    			System.out.println("uresponse: " + uresponse);
+    			
+    			if (!reCaptchaResponse.isValid()) {
+    				getActionErrors().clear();
+    				addActionError(getText("login.error.reCaptcha.invalid"));
+    				return INPUT;
+    			} 
+    		}
+    		
+    		// retrieve a user
+			this.user = userService.getUserByLoginPass(this.login, MD5Util.convertIntoMD5(this.password));
+
+			// Handling of non-existing user.
 			if (this.user == null) {
-				addActionError(getText("error.user_not_exists"));
-				
-				Integer loginAttempts = (Integer) session.get(CommonData.MULTIPLE_LOGIN_ATTEMPTS);
-				
+				addActionError(getText("login.error.user.not_exists"));
+								
 				if (loginAttempts == null) {
 					loginAttempts = 0;
 				}
 				loginAttempts++;
 				session.put(CommonData.MULTIPLE_LOGIN_ATTEMPTS, loginAttempts);
 				
+				return INPUT;
+			} 
+			
+			// handling of inactive user
+			if (user.getActive() == ActiveStatusEnum.INACTIVE.getValue() ||
+					user.getVerified() == VerifiedStatusEnum.NOT_VERIFIED.getValue()) {
+				
+				addActionError(getText("login.error.user.inactive_user"));
+
 				return INPUT;
 			}
 			
@@ -116,14 +170,10 @@ public class LoginAction extends ActionSupport {
 		} catch (Exception ex) {
 			logger.logp(Level.SEVERE, LoginAction.class.getName(), "execute()", ex.getMessage(), ex);
 			
-			getActionErrors().clear();
 			addActionError(getText("error.unknown"));
 			addActionError(ex.toString());
-			addActionError(ex.getMessage());
 			
-			for( StackTraceElement elem : ex.getStackTrace()) {
-				addActionError(elem.toString());
-			}
+			StaticDebugger.consoleLog(ex); // debug
 			
 			return ERROR;
 		}
@@ -138,10 +188,9 @@ public class LoginAction extends ActionSupport {
      */
     public String logout() {
     	Map<String, Object> session = null;
-    		
     	User user = null;
     	
-    	System.out.println("LoginAction.logout()");
+    	System.out.println("LoginAction.logout()"); // debug
     	
     	try {
     		session = ServletActionContext.getContext().getSession();
@@ -153,7 +202,7 @@ public class LoginAction extends ActionSupport {
     			user = null;
     		}
     	} catch (Exception ex) {
-    		// TODO log stack trace
+    		StaticDebugger.consoleLog(ex);
     		return ERROR;
     	}
     	
@@ -166,5 +215,9 @@ public class LoginAction extends ActionSupport {
     
     public void setUserService(UserDao userService) {
 		this.userService = userService;
+	}
+
+	public void setServletRequest(HttpServletRequest request) {
+		this.request = request;
 	}
 }

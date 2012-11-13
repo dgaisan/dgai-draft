@@ -11,12 +11,17 @@
 </head>
 <body>
 
-	Should also have a captcha!
+	<s:actionerror />
+
+	<s:bean name="com.onlymega.dgaisan.html5maker.common.ReCaptchaAdaptor" var="recaptcha" />
 
 	<s:form action="register/free">
 		<s:textfield key="register.login" name="login" />
 		<s:password key="register.password" name="pass" />
 		<s:password key="register.password.repeat" name="passRep" />
+		<br />
+		<s:property value="#recaptcha.html" escape="false" />
+
 		<s:submit />
 	</s:form>
 

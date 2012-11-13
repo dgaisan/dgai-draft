@@ -3,6 +3,8 @@
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	
 <%@taglib prefix="s" uri="/struts-tags" %>
+<%@ page import="net.tanesha.recaptcha.ReCaptcha" %>
+<%@ page import="net.tanesha.recaptcha.ReCaptchaFactory" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -15,16 +17,17 @@
 	<s:if test="%{#session['loggedin'] != null}">
 		<% response.sendRedirect(request.getContextPath() + "/jsp/home.jsp"); %>
 	</s:if>
-		
-	<s:if test="%{#session['login_attempts'] > 1}">
-		THIS TIME Captcha is supposed to be displayed.
-		<!--TODO : reCaptcha-->
-	</s:if>
 
 
 	<s:form action="login">
 		<s:textfield key="login" name="login" />
 		<s:password key="password" name="password" />
+
+		<s:if test="%{#session['login_attempts'] > 1}">
+			<s:bean name="com.onlymega.dgaisan.html5maker.common.ReCaptchaAdaptor" var="recaptcha" />
+			<s:property value="#recaptcha.html" escape="false" />
+		</s:if>
+
 		<s:submit />
 	</s:form>
 

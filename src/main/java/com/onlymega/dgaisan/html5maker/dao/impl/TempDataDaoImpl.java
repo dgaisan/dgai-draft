@@ -1,5 +1,6 @@
 package com.onlymega.dgaisan.html5maker.dao.impl;
 
+import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 
 import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
@@ -17,6 +18,12 @@ public class TempDataDaoImpl implements TempDataDao {
 			session.getTransaction().begin();
 			session.save(data);
 			session.getTransaction().commit();
+		} catch (HibernateException e) {
+			//TODO log the rolldback
+			System.out.println("TempDataDaoImpl.saveData()");
+			System.out.println("Rolling back!"); // debug
+ 			
+			session.getTransaction().rollback();	
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.flush();
