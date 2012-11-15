@@ -26,7 +26,7 @@ public class EmailService {
 	private static final String registrationService = 
 		"registration/confirmation/";
 	private static final String restorePasswordService = 
-		"restore/password/update/";
+		"restore/update/";
 	
 	/**
 	 * Send out an email to confirm registration.

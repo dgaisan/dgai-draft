@@ -13,9 +13,9 @@
 
 	<s:bean name="com.onlymega.dgaisan.html5maker.common.ReCaptchaAdaptor" var="recaptcha" />
 	
-	<s:form action="register/complete" namespace="/">
+	<s:form action="restore/password/update" namespace="/">
 		<s:hidden name="activationCode" />
-		<s:textfield key="restore.password" name="password" />
+		<s:textfield key="restore.password.password" name="password" />
 		<s:textfield key="restore.password.password.repeat" name="passwordRep" />
 
 		<s:property value="#recaptcha.html" escape="false" />

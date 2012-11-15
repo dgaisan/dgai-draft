@@ -39,10 +39,9 @@ public class LostPasswordsAction extends ActionSupport implements ServletRequest
 	private String passwordRep;
 	private String activationCode;
 
-	/*
+	
 	public void validateSendActivationCode() {
-		getFieldErrors().clear();
-		getActionErrors().clear();
+		clearErrors();
 		
 		System.out.println("LostPasswordsAction.validateSendActivationCode()");
 		System.out.println("login: " + getLogin());
@@ -58,7 +57,7 @@ public class LostPasswordsAction extends ActionSupport implements ServletRequest
 		System.out.println(getActionErrors());
 		System.out.println(getFieldErrors());
 	}
-	*/
+	
 	
 	/**
 	 * This action creates an activation code and emails it to the 
@@ -134,6 +133,7 @@ public class LostPasswordsAction extends ActionSupport implements ServletRequest
 
 	public void validateUpdatePasswordPage() {
 		clearActionErrors();
+		System.out.println("LostPasswordsAction.validateUpdatePasswordPage()");
 		
 		if (getActivationCode() == null || "".equals(getActivationCode())) {
 			addActionError(getText("restore.error.activationcode.unknown"));
@@ -165,9 +165,10 @@ public class LostPasswordsAction extends ActionSupport implements ServletRequest
 		return SUCCESS;
 	}
 	
-	public void validate() {
-		clearActionErrors();
-		clearFieldErrors();
+	public void validateExecute() {
+		clearErrors();
+		
+		System.out.println("LostPasswordsAction.validateExecute()");
 		
 		if (getPassword() == null || "".equals(getPassword())) {
 			addFieldError("password", getText("restore.error.missing_login"));
@@ -192,7 +193,7 @@ public class LostPasswordsAction extends ActionSupport implements ServletRequest
 		
 		RestoredPassword rp = null;
 		User user = null;
-		
+
 		if (getActivationCode() == null || "".equals(getActivationCode())) {
 			addActionError(getText("restore.error.activationcode.unknown"));
 			return ERROR;
@@ -201,23 +202,24 @@ public class LostPasswordsAction extends ActionSupport implements ServletRequest
 			addActionError(getText("register.error.reCaptcha.invalid"));
 			return INPUT;
 		}
-		
+
 		try {
 			rp = restoredPasswordService.getRestoredPassword(activationCode);
 			if (rp == null) {
 				addActionError(getText("restore.error.activationcode.unknown"));
 				return ERROR;
 			}
-			user = rp.getUser();
+			user = userService.getUser(rp.getUser().getUserId());
 			System.out.println("User id: " + user.getUserId());
 			
 			user.setPass(MD5Util.convertIntoMD5(getPassword()));
-			userService.saveUser(user);
+			userService.updateUser(user);
 			restoredPasswordService.removeRestoredPassword(rp);
 			EmailService.sendPasswordChangeNotice(user.getLogin());
 			
 		} catch (Exception e) {
 			addActionError(getText("error.unknown"));
+			StaticDebugger.consoleLog(e);
 			return ERROR;
 		}
 		

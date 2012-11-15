@@ -8,7 +8,7 @@
 <head>
 	<title>Membership</title>
 	<s:head />
-	<meta http-equiv="refresh" content="5;url=index.html">
+	<meta http-equiv="refresh" content="5;url=/index.html">
 </head>
 <body>
 	Your password has been restored! You will automatically be redirected to the home page.
