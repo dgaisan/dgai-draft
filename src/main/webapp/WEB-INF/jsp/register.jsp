@@ -12,7 +12,7 @@
 <body>
 
 	<!--Paypal should be added-->
-	<s:form action="register/complete">
+	<s:form action="register/complete" namespace="/">
 		<s:textfield key="register.login" name="login" />
 		<s:textfield key="register.password" name="pass" />
 

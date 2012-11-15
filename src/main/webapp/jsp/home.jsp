@@ -15,7 +15,7 @@
 		</s:if>
 		
 		Hello <s:property value="%{#session['theUser'].userName}"/> <br/>
-		<div style = "float: right"><a href = "logout.action">Logout</a></div>
+		<div style = "float: right"><s:a action="logout" namespace="/">Logout</s:a></div>
 		
 	</body>
 </html>

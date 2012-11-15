@@ -11,6 +11,7 @@ import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
 import com.onlymega.dgaisan.html5maker.model.Membership;
 import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
+import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.utils.HibernateUtil;
 
 /**
@@ -41,6 +42,7 @@ public class MembershipDaoImpl implements MembershipDao {
 			session.getTransaction().commit();
 		} catch (HibernateException ex) {
 			// log exception
+			session.getTransaction().rollback();
 			throw ex;
 		} finally {
 			if (session != null && session.isOpen()) {
@@ -68,10 +70,10 @@ public class MembershipDaoImpl implements MembershipDao {
 		return reg;
 	}
 
-	public void removeRegistrationConfirmationentry(RegistrationConfirmation reg)
+	public void removeRegistrationConfirmation(RegistrationConfirmation reg)
 			throws HibernateException {
 		Session session = null;
-		
+
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			session.getTransaction().begin();
@@ -86,7 +88,12 @@ public class MembershipDaoImpl implements MembershipDao {
 				session.close();
 			}
 		}
+	}
+
+	public void removeRegistrationConfirmationsByUser(User user)
+			throws HibernateException {
 		
+		// TODO, maybe
 	}
 
 }

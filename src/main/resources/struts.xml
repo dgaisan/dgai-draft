@@ -87,6 +87,30 @@
 			<result name="error">/error.jsp</result>
 			<result>/WEB-INF/jsp/confirm_registration.jsp</result>
 		</action>
+		
+		<action name="/re/confirmation" class="register" method="resendConfirmationEmail">
+			<result>/WEB-INF/jsp/confirm_registration.jsp</result>
+			<result name="input">/WEB-INF/jsp/memberships.jsp</result>
+		</action>
+		
+		<action name="restore/password" class="restorePassword" method="sendActivationCode">
+			<result name="input">/jsp/restorepassword.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result>/jsp/restoresent.jsp</result>
+		</action>
+		
+		<action name="restore/update" class="restorePassword" method="updatePasswordPage">
+			<result name="input">/error.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result>/WEB-INF/jsp/updatepassword.jsp</result>
+		</action>
+		
+		<action name="restore/password/update/*" class="restorePassword">
+			<param name="activationCode">{1}</param>
+			<result name="error">/error.jsp</result>
+			<result name="input">/WEB-INF/jsp/updatepassword.jsp</result>
+			<result>/jsp/restorecomplete.jsp</result>
+		</action>
 
 		<action name="register/complete" class="register">
 			<result name="input">/jsp/register.jsp</result>

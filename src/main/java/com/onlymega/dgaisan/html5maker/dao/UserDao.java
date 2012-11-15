@@ -22,6 +22,15 @@ public interface UserDao {
 	User getUserByLoginPass(String login, String pass) throws Exception;
 	
 	/**
+	 * Gets a user by its login/email.
+	 * 
+	 * @param login {@link String}
+	 * @return {@link User}
+	 * @throws HibernateException
+	 */
+	User getUserByLogin(String login) throws HibernateException;
+	
+	/**
 	 * Saves a new user.
 	 * 
 	 * @param user {@link User}
@@ -31,7 +40,14 @@ public interface UserDao {
 	 */
 	int saveUser(User user) throws Exception;
 	
-	boolean userExists(String login) throws HibernateException;
+	/**
+	 * Check whether the provided login is already taken by another user.
+	 * 
+	 * @param login {@link String}
+	 * @return {@code true} if login is taken, {@code false} otherwise
+	 * @throws HibernateException
+	 */
+	boolean isLoginDuplicate(String login) throws HibernateException;
 	
 	/**
 	 * Updates an existing user.

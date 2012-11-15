@@ -13,6 +13,9 @@
 	<bean 	id = "membershipServiceImpl"
 			class = "com.onlymega.dgaisan.html5maker.dao.impl.MembershipDaoImpl" />
 
+	<bean	id = "restoredPasswordServiceImpl"
+			class = "com.onlymega.dgaisan.html5maker.dao.impl.RestoredPasswordDaoImpl" />
+
     <bean 	id = "login"
     		class = "com.onlymega.dgaisan.html5maker.actions.LoginAction" 
     		singleton = "false" >
@@ -25,6 +28,14 @@
 
 		<property name="userService" ref="userServiceImpl" />
 		<property name="membershipService" ref="membershipServiceImpl" />
+	</bean>
+	
+	<bean	id = "restorePassword"
+			class = "com.onlymega.dgaisan.html5maker.actions.LostPasswordsAction">
+	
+		<property name="userService" ref="userServiceImpl" />
+		<property name="restoredPasswordService" ref="restoredPasswordServiceImpl" />
+		
 	</bean>
 	
 	<bean 	id = "saveImage" 

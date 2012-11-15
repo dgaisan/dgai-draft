@@ -6,6 +6,7 @@ import org.hibernate.HibernateException;
 
 import com.onlymega.dgaisan.html5maker.model.Membership;
 import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
+import com.onlymega.dgaisan.html5maker.model.User;
 
 /**
  * This service is responsible for membership-aws related functionality.
@@ -32,9 +33,30 @@ public interface MembershipDao {
 	 */
 	void saveRegistrationConfirmationCode(RegistrationConfirmation reg) throws HibernateException;
 	
+	/**
+	 * Gets a {@link RegistrationConfirmation} by its the code. 
+	 * 
+	 * @param code
+	 * @return {@link RegistrationConfirmation} or {@code null}
+	 * @throws HibernateException
+	 */
 	RegistrationConfirmation getRegisterationConfirmationByCode(String code) throws HibernateException;
 	
-	void removeRegistrationConfirmationentry(RegistrationConfirmation reg) throws HibernateException;
+	/**
+	 * Removes a {@link RegistrationConfirmation} association.
+	 * 
+	 * @param reg {@link RegistrationConfirmation}
+	 * @throws HibernateException
+	 */
+	void removeRegistrationConfirmation(RegistrationConfirmation reg) throws HibernateException;
+	
+	/**
+	 * TODO
+	 * 
+	 * @param user
+	 * @throws HibernateException
+	 */
+	void removeRegistrationConfirmationsByUser(User user) throws HibernateException;
 	
 	//void renameObject(String bucketName, String direcotry, String objectName)
 	

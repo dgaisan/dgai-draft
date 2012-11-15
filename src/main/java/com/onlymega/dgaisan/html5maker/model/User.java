@@ -81,7 +81,7 @@ public class User implements Serializable {
 		this.role = role;
 	}
 	
-	public void setVerified(short verified) {
+	public void setVerified(int verified) {
 		this.verified = verified;
 	}
 
@@ -89,7 +89,7 @@ public class User implements Serializable {
 		return verified;
 	}
 
-	public void setActive(short active) {
+	public void setActive(int active) {
 		this.active = active;
 	}
 

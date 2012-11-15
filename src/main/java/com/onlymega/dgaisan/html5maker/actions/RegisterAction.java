@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts2.interceptor.ServletRequestAware;
@@ -160,11 +162,13 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			}
 			
 			
-			if (userService.userExists(user.getLogin())) {
+			if (userService.isLoginDuplicate(user.getLogin())) {
 				// such user already exists
+				System.out.println("This user already exists"); // debug
 				addActionError(getText("register.error.login.duplicate"));
 				return INPUT;
 			}
+			String originalPass = user.getPass();
 			
 			// save user
 			user.setRole(1);
@@ -186,6 +190,24 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
 					registrationCode);
 			
+			// setting original(non MD5) password on the session
+			user.setPass(originalPass); 
+		} catch (AddressException ae) {
+			// resend email
+			try {
+				EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
+						registrationCode);
+			} catch (Exception e) {
+				// couldn't send confirmation email
+			}
+		} catch (MessagingException me) {
+			// resend email
+			try {
+				EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
+						registrationCode);
+			} catch (Exception e) {
+				// couldn't send confirmation email
+			}
 		} catch (Exception e) {
 			addActionError(getText("error.unknown"));
 			
@@ -193,6 +215,27 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			StaticDebugger.consoleLog(e);
 			
 			return ERROR;
+		}
+		
+		return SUCCESS;
+	}
+
+	/**
+	 * Action for re-sending confirmation email.
+	 * 
+	 * @return SUCCESS
+	 */
+	public String resendConfirmationEmail() {
+		if (user == null || user.getLogin() == null || "".equals(user.getLogin())) {
+			return INPUT;
+		}
+		
+		try {
+			EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
+					registrationCode);
+		} catch (Exception e) {
+			// couldn't send confirmation email
+			// log action?
 		}
 		
 		return SUCCESS;
@@ -229,8 +272,10 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 				System.out.println("user == null");
 				addActionError("User wasn't found");
 				return ERROR;
+			} else {
+				System.out.println("User != null");
+				System.out.println("UserId: " + u.getUserId());
 			}
-			
 			
 			if (u.getActive() != ActiveStatusEnum.ACTIVE.getValue() 
 					&& u.getVerified() != VerifiedStatusEnum.VERIFIED.getValue()) {
@@ -239,12 +284,12 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			} else {
 				// user is already confirmed
 				// just need to remove the registration confirm. code.
-				membershipService.removeRegistrationConfirmationentry(reg);
+				membershipService.removeRegistrationConfirmation(reg);
 				return SUCCESS;
 			}
 			
 			userService.updateUser(u);
-			membershipService.removeRegistrationConfirmationentry(reg);
+			membershipService.removeRegistrationConfirmation(reg);
 			
 		} catch (Exception e) {
 			addActionError(getText("error.unknown"));
@@ -343,11 +388,15 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	public void setServletRequest(HttpServletRequest request) {
 		this.request = request;
 	}
-	
+
 	public void setConfirmationCode(String code) {
 		this.registrationCode = code;
 	}
-	
+
+	public String getConfirmationCode() {
+		return this.registrationCode;
+	}
+
 	private String getEncriptedPassword(String pass) throws Exception {
 		return MD5Util.convertIntoMD5(pass);
 	}

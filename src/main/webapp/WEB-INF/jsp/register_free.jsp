@@ -15,7 +15,7 @@
 
 	<s:bean name="com.onlymega.dgaisan.html5maker.common.ReCaptchaAdaptor" var="recaptcha" />
 
-	<s:form action="register/free">
+	<s:form action="register/free" namespace="/">
 		<s:textfield key="register.login" name="login" />
 		<s:password key="register.password" name="pass" />
 		<s:password key="register.password.repeat" name="passRep" />

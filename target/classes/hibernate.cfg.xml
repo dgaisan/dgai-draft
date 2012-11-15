@@ -22,5 +22,6 @@
         <mapping resource="com/onlymega/dgaisan/html5maker/model/User.hbm.xml"></mapping>
         <mapping resource="com/onlymega/dgaisan/html5maker/model/TempData.hbm.xml" />
         <mapping resource="com/onlymega/dgaisan/html5maker/model/RegistrationConfirmation.hbm.xml" />
+        <mapping resource="com/onlymega/dgaisan/html5maker/model/RestoredPassword.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

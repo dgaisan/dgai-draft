@@ -35,6 +35,28 @@ public class UserDaoImpl implements UserDao {
 		
 		return user;
 	}
+	
+	public User getUserByLogin(String login) throws HibernateException {
+		User user = null;
+		Session session = null;
+		String query = "from User u where u.login = ?";
+
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			user = (User) session.createQuery(query)
+							.setString(0, login)
+							.uniqueResult();
+		} catch(HibernateException ex) {
+			throw ex;
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.flush();
+				session.close();
+			}
+		}
+		
+		return user;
+	}
 
 	public int saveUser(final User user) throws HibernateException {
 		Session session = null;
@@ -110,7 +132,7 @@ public class UserDaoImpl implements UserDao {
 		return ret;
 	}
 
-	public boolean userExists(String login) throws HibernateException {
+	public boolean isLoginDuplicate(String login) throws HibernateException {
 		Session session = null;
 		User user = null;
 		String query = "from User u where u.login = ?";
@@ -127,6 +149,13 @@ public class UserDaoImpl implements UserDao {
 				session.flush();
 				session.close();
 			}
+		}
+		
+		System.out.println("UserDaoImpl.userExists()");
+		if (user == null) {
+			System.out.println("User doesn't exist");
+		} else {
+			System.out.println("user " + user.getLogin() + " exists");
 		}
 		
 		return user != null;

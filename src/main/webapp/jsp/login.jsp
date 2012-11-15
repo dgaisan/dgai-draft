@@ -19,7 +19,7 @@
 	</s:if>
 
 
-	<s:form action="login">
+	<s:form action="login" namespace="/">
 		<s:textfield key="login" name="login" />
 		<s:password key="password" name="password" />
 
@@ -34,6 +34,7 @@
 	<hr />
 	<br />
 	<s:a action="memberships">Need Account? Click here to register</s:a>
+	<a href="jsp/restorepassword.jsp"> Forgot Password? </a>
 </body>
 </html>
 	

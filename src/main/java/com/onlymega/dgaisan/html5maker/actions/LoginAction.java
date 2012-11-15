@@ -43,23 +43,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware {
 	private String password;
 	
 	private HttpServletRequest request;
-	
-	/**
-	 * logger initializer
-	 */
-	static {
-		//DOMConfigurator.configure("log4j.xml");
-	}
-	
-	/**
-	 * .ctor()
-	 * Initialize user
-	 */
-	public LoginAction() {
-		user = null;
-		userService = null;
-	}
-	
+
 	public String getLogin() {
 		return login;
 	}
@@ -94,10 +78,12 @@ public class LoginAction extends ActionSupport implements ServletRequestAware {
     @SuppressWarnings("unchecked")
 	public String execute() throws Exception {
     	Map<String, Object> session = null;
-    	
+
     	clearActionErrors();
     	System.out.println("LoginAction.execute()"); // debug
-    	
+    	System.out.println("User.pass " + getPassword());
+    	System.out.println("User.login " + getLogin());
+
     	try {
     		session = ServletActionContext.getContext().getSession();
     		
@@ -208,7 +194,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware {
     	
     	return SUCCESS;
     }
-
+    
     public String home() {
     	return SUCCESS;
     }

@@ -13,5 +13,13 @@
 
 Confirmation Email was sent on <s:property value="login" />
 
+<hr />
+
+<s:url id="reUrl" namespace="/" action="re/confirmation" />
+
+
+If you haven't received an email from us please click 
+<s:a errorText="Sorry your request had an error." href="%{reUrl}">Here</s:a> to send a new one.
+
 </body>
 </html>
