@@ -5,20 +5,36 @@
 
 <hibernate-configuration>
     <session-factory>
-        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <!-- 
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Uncomment in Test env.
         <property name="hibernate.connection.password">dZqvq3O4</property>
         <property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/html5maker</property>
         <property name="hibernate.connection.username">root</property>
         -->
+
 		<property name="hibernate.connection.password"></property>
         <property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/html5maker</property>
         <property name="hibernate.connection.username">root</property>
-    	 
-        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
-        <property name="show_sql">true</property>
+    	  
+    	  
+        <!-- Use the C3P0 connection pool. -->
+        <property name="connection_provider_class">
+    		org.hibernate.connection.C3P0ConnectionProvider
+		</property>
+        <property name="c3p0.min_size">3</property>
+        <property name="c3p0.max_size">5</property>
+        <property name="c3p0.timeout">1800</property>
         
+        <!-- Print SQL to stdout. -->
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+
+        <property name="transaction.factory_class">
+            org.hibernate.transaction.JDBCTransactionFactory
+        </property>
+
         <mapping resource="com/onlymega/dgaisan/html5maker/model/User.hbm.xml"></mapping>
         <mapping resource="com/onlymega/dgaisan/html5maker/model/TempData.hbm.xml" />
         <mapping resource="com/onlymega/dgaisan/html5maker/model/RegistrationConfirmation.hbm.xml" />

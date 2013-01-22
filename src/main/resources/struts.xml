@@ -9,35 +9,34 @@
 	<package name="myPackage" extends="struts-default">
 	
 		<interceptors>
-			<interceptor name="loginInterceptor" class="com.onlymega.dgaisan.html5maker.interceptors.AuthenticationIntercepter" />
-			
-			<interceptor-stack name="defaultLoginStack">
-                <interceptor-ref name="exception"/>
-                <interceptor-ref name="alias"/>
-                <interceptor-ref name="servletConfig"/>
-                <interceptor-ref name="i18n"/>
-                <interceptor-ref name="loginInterceptor"/>
-                <interceptor-ref name="prepare"/>
-                <interceptor-ref name="chain"/>
-                <interceptor-ref name="scopedModelDriven"/>
-                <interceptor-ref name="modelDriven"/>
-                <interceptor-ref name="fileUpload"/>
-                <interceptor-ref name="checkbox"/>
-                <interceptor-ref name="multiselect"/>
-                <interceptor-ref name="staticParams"/>
-                <interceptor-ref name="actionMappingParams"/>
-                <interceptor-ref name="params">
-                    <param name="excludeParams">dojo\..*,^struts\..*,^session\..*,^request\..*,^application\..*,^servlet(Request|Response)\..*,parameters\...*</param>
-                </interceptor-ref>
-                <interceptor-ref name="conversionError"/>
-                <interceptor-ref name="validation">
-                    <param name="excludeMethods">input,back,cancel,browse</param>
-                </interceptor-ref>
-                <interceptor-ref name="workflow">
-                    <param name="excludeMethods">input,back,cancel,browse</param>
-                </interceptor-ref>
-                <interceptor-ref name="debugging"/>
-            </interceptor-stack>
+                    <interceptor name="loginInterceptor" class="com.onlymega.dgaisan.html5maker.interceptors.AuthenticationIntercepter" />
+                    <interceptor-stack name="defaultLoginStack">
+                        <interceptor-ref name="exception"/>
+                        <interceptor-ref name="alias"/>
+                        <interceptor-ref name="servletConfig"/>
+                        <interceptor-ref name="i18n"/>
+                        <interceptor-ref name="loginInterceptor"/>
+                        <interceptor-ref name="prepare"/>
+                        <interceptor-ref name="chain"/>
+                        <interceptor-ref name="scopedModelDriven"/>
+                        <interceptor-ref name="modelDriven"/>
+                        <interceptor-ref name="fileUpload"/>
+                        <interceptor-ref name="checkbox"/>
+                        <interceptor-ref name="multiselect"/>
+                        <interceptor-ref name="staticParams"/>
+                        <interceptor-ref name="actionMappingParams"/>
+                        <interceptor-ref name="params">
+                            <param name="excludeParams">dojo\..*,^struts\..*,^session\..*,^request\..*,^application\..*,^servlet(Request|Response)\..*,parameters\...*</param>
+                        </interceptor-ref>
+                        <interceptor-ref name="conversionError"/>
+                        <interceptor-ref name="validation">
+                            <param name="excludeMethods">input,back,cancel,browse</param>
+                        </interceptor-ref>
+                        <interceptor-ref name="workflow">
+                            <param name="excludeMethods">input,back,cancel,browse</param>
+                        </interceptor-ref>
+                        <interceptor-ref name="debugging"/>
+                    </interceptor-stack>
 		</interceptors>
 	
 		<global-results>
@@ -50,7 +49,12 @@
 			</exception-mapping>
 		</global-exception-mappings>
 		
-		<action name="index" class="com.onlymega.dgaisan.html5maker.IndexAction">
+		<action name="signin" class="com.onlymega.dgaisan.html5maker.IndexAction">
+			<result>/jsp/login.jsp</result>
+		</action>
+                
+                <!-- keeping index.html for backward compatability -->
+                <action name="index" class="com.onlymega.dgaisan.html5maker.IndexAction">
 			<result>/jsp/login.jsp</result>
 		</action>
 		
@@ -73,6 +77,11 @@
 		<action name="memberships" class="register" method="membershipPage">
 			<result name="error">/error.jsp</result>
 			<result>/WEB-INF/jsp/memberships.jsp</result>
+		</action>
+
+		<action name="design/create" class="banner">
+			<result name="error">/error.jsp</result>
+			<result>/app.jsp</result>
 		</action>
 
 		<action name="register" class="register" method="preregister">
@@ -121,11 +130,11 @@
 		</action>
 
 		<action name="saveImage" class="saveImage">
-			<result>/jsp/home.jsp</result>
+			<result>/WEB-INF/jsp/dashboard.jsp</result>
 		</action>
 
 		<action name="saveData" class="saveData">
-			<result>/jsp/home.jsp</result>
+			<result>/WEB-INF/jsp/dashboard.jsp</result>
 		</action>
 		
 		<action name="/download/*" class="download">
@@ -145,12 +154,14 @@
 			</result>
 		</action>   
 
-		<action name="saveBanner">
-			<interceptor-ref name="defaultLoginStack" />
-			<result>/jsp/home.jsp</result>
-			<result name="login_result" type="redirectAction" >
-				<param name="actionName">index</param>
-			</result>
+		<action name="saveBanner" class="banner" method="saveBannerAction">
+                    <interceptor-ref name="defaultLoginStack" />
+                    <result>/WEB-INF/jsp/dashboard.jsp</result>
+                    <result name="login_result" type="redirectAction" >
+			<param name="actionName">index</param>
+                    </result>
+                    <result name="error">/error.jsp</result>
+                        
 		</action>
 
 		
@@ -159,7 +170,7 @@
 			
 			<result name="error">/error.jsp</result>
 			<result name="input">/jsp/login.jsp</result>
-			<result>/jsp/home.jsp</result>
+			<result>/WEB-INF/jsp/dashboard.jsp</result>
 		</action>
 	</package>
 	

@@ -22,5 +22,6 @@ public interface CommonData {
 	/*package*/ static final String ASSETS_PREFIX = "html5maker_assets_";
 	/*package*/ static final String DEFAULT_CONTEXT = "ROOT";
 	/*package*/ static final String FREE_MEMBERSHIP = "Free";
+	/*package*/ static final String USER_ONLINE_TOKEN = "_user_online_token_";
 	
 }

@@ -2,13 +2,13 @@ package com.onlymega.dgaisan.html5maker.actions;
 
 import java.io.File;
 import java.io.FileOutputStream;
-//import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
 import org.apache.struts2.util.ServletContextAware;
@@ -18,25 +18,26 @@ import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
- * An action for saving and image.
- * The file is saved into a temporary folder under the application 
+ * Action for saving an image.
+ * The file is saved into a temporary folder under the application's 
  * folder. The action is working with raw Http request and response.
  * 
  * @author Dmitri Gaisan
  *
  */
-public class SaveImageAction extends ActionSupport implements 
-	ServletRequestAware, 
-	ServletResponseAware, 
-	ServletContextAware,
-	CommonData {
-	private static final long serialVersionUID = 173281342L;
-//	private static final Logger logger = Logger.getLogger(SaveImageAction.class.getName());
+public class SaveImageAction extends ActionSupport 
+	implements 
+		ServletRequestAware, 
+		ServletResponseAware, 
+		ServletContextAware {
 	
+	private static final long serialVersionUID = 173281342L;
+	private static final Logger logger = Logger.getLogger(SaveImageAction.class.getName());
+
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private ServletContext servletContext;
-	
+
 	@Override
 	public String execute() throws Exception {
 		ServletInputStream stream = null;
@@ -47,20 +48,20 @@ public class SaveImageAction extends ActionSupport implements
 		String fullPath = "";
 		int bytesRead = 0;
 		byte[] buffer = null;
-		
+
 		try {
 			int tempFileLen = 0;
-			
+
 			stream = request.getInputStream();
 			newFileName = KeyGenerator.generateNameHash() + ".png";
-			
-			fullPath = servletContext.getRealPath("/") + TEMP_FOLDER + File.separator + newFileName;
-			String dirFileName = servletContext.getRealPath("/") + TEMP_FOLDER;
+
+			fullPath = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER + File.separator + newFileName;
+			String dirFileName = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
 
 			dir = new File(dirFileName);
 			file = new File(dirFileName, newFileName);
 			System.out.println("fullPath: " + fullPath);
-			
+
 			if (!dir.exists()) {
 				dir.mkdir();
 			}
@@ -69,9 +70,9 @@ public class SaveImageAction extends ActionSupport implements
 			}
 			
 			fios = new FileOutputStream(file);
-			buffer = new byte[ BUFFER_SIZE];
+			buffer = new byte[ CommonData.BUFFER_SIZE];
 		
-			// TODO validate request
+			// TODO validate request!
 			
 			while ((bytesRead = stream.read(buffer)) > 0) {
 				fios.write(buffer, 0, bytesRead);
@@ -80,22 +81,15 @@ public class SaveImageAction extends ActionSupport implements
 			fios.flush();
 			fios.close();
 		} catch (Exception ex) {
-			// TODO Log the exception
-			System.out.println("Exception! in SaveImageAction");
-			for (StackTraceElement el : ex.getStackTrace()) {
-				System.out.println(el.toString());
-			}
+			logger.error(ex.getMessage(), ex);
 		} finally {
 			try {
 				response.getWriter().print(newFileName);
 				response.getWriter().close();
 			} catch (Exception e) {
-				// TODO Log the exception
-				System.out.println("Error sending the response");
-				System.out.println(e);
+				logger.error(e.getMessage(), e);
 			}
 		}
-		
 		return null;
 	}
 	

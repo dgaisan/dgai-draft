@@ -20,8 +20,12 @@ import javax.mail.internet.MimeMessage;
  */
 public class EmailService {
 	
+	//private static final String applicationContext = 
+		//"http://localhost:8080/draft-struts/";
+	
 	private static final String applicationContext = 
-		"http://localhost:8080/draft-struts/";
+		"http://html5maker.com:8080/html5maker/";
+	
 	
 	private static final String registrationService = 
 		"registration/confirmation/";

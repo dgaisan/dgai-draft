@@ -2,13 +2,13 @@ package com.onlymega.dgaisan.html5maker.actions;
 
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.struts2.interceptor.ServletRequestAware;
 
 import net.tanesha.recaptcha.ReCaptchaImpl;
@@ -25,38 +25,39 @@ import com.onlymega.dgaisan.html5maker.model.VerifiedStatusEnum;
 import com.onlymega.dgaisan.html5maker.utils.EmailService;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.MD5Util;
-import com.onlymega.dgaisan.html5maker.utils.StaticDebugger;
 import com.onlymega.dgaisan.html5maker.utils.ValidationUtil;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
+/**
+ * Actions that are responsible for user registration process.
+ * 
+ * @author Dmitri Gaisan
+ *
+ */
 public class RegisterAction extends ActionSupport implements ModelDriven<User>, ServletRequestAware {
 	private static final long serialVersionUID = 2837183738L;
 	private static final Logger logger = Logger.getLogger(RegisterAction.class.getName());
-	
+
 	private UserDao userService;
 	private MembershipDao membershipService;
-	
+
 	private User user = new User();
 	private HttpServletRequest request;
-	
+
 	private List<Membership> availableMemberships;
-	
+
 	private String membership;
 	private String passRep;
 	private String registrationCode;
-	
-	
+
+	static {
+		//PropertyConfigurator.configure("log4j.properties");
+	}
+
 	public void validateRegisterFree() throws Exception {
-		System.out.println("RegisterAction.validateRegisterFree()");
-		
-		clearActionErrors();
-		clearFieldErrors();
-		
-		System.out.println(getPassRep());
-		System.out.println(user.getPass());
-		System.out.println("user service: " + userService); // debug
-		
+		clearErrors();
+
 		if (user.getLogin() == null || "".equals(user.getLogin())){
 			addFieldError("login", getText("register.error.missing_login"));
 		} else if (!ValidationUtil.isValidEmailAddress(user.getLogin())) {
@@ -73,14 +74,10 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			addFieldError("passRep", getText("register.error.password_not_matching"));
 		}
 	}
-	
+
 	public void validateExecute() {
-		System.out.println("RegisterAction.validateExecute()");
-		logger.log(Level.FINEST, user.toString());
-		
-		clearActionErrors();
-		clearFieldErrors();
-		
+		clearErrors();
+
 		if (user.getLogin() == null || "".equals(user.getLogin())){
 			addFieldError("login", getText("register.error.missing_login"));
 		} else if (!ValidationUtil.isValidEmailAddress(user.getLogin())) {
@@ -91,10 +88,8 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 		} else if (user.getPass().length() < 6) {
 			addFieldError("pass", getText("register.error.pass_size"));
 		} 
-		
-		super.validate();
 	}
-	
+
 	/**
 	 * This action is associated with the option that was chosen
 	 * on membership page. The view is returned depending on 
@@ -106,15 +101,15 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	 * <b>SUCCESS</b> - otherwise (paid membership) </pre>
 	 */
 	public String preregister() {
-		System.out.println("RegisterAction.preregister()");
-		
-		System.out.println("Membership: " + membership);// debug
+		System.out.println("RegisterAction.preregister()"); // XXX remove me
+		if (logger.isInfoEnabled()) {
+			logger.info("Info Message!");
+		}
 		
 		if (getMembershipId(membership) == 0) {
 			System.out.println("Attempted to enter wrong membership type.");
 			return INPUT;
 		}
-		
 		if (CommonData.FREE_MEMBERSHIP.equals(membership)) {
 			return CommonData.FREE_MEMBERSHIP;
 		}
@@ -129,13 +124,10 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	 * @throws Exception
 	 */
 	public String membershipPage() throws Exception {
-		System.out.println("RegisterAction.membershipPage()");
 		try {
 			availableMemberships = membershipService.getAvailableMemberships();
 		} catch (Exception e) {
-			// TODO: log this exception
-			System.out.println("Exception: ");
-			StaticDebugger.consoleLog(e); // debug
+			logger.error(e.getMessage(), e);
 			return ERROR;
 		}
 
@@ -149,27 +141,22 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	 * @return result
 	 */
 	public String registerFree() {
-		System.out.println("RegisterAction.registerFree()");
-		
 		try {
-			// validate recaptcha
 			if (invalidRecaptcha()) {
-				getActionErrors().clear();
-				getFieldErrors().clear();
-				
+				clearErrors();
 				addActionError(getText("register.error.reCaptcha.invalid"));
+
 				return INPUT;
 			}
-			
-			
 			if (userService.isLoginDuplicate(user.getLogin())) {
-				// such user already exists
-				System.out.println("This user already exists"); // debug
+				logger.debug("The User already exists: " + user.getLogin());
 				addActionError(getText("register.error.login.duplicate"));
+
 				return INPUT;
 			}
 			String originalPass = user.getPass();
-			
+			RegistrationConfirmation reg = null;
+
 			// save user
 			user.setRole(1);
 			user.setDateCreated(new Date());
@@ -177,19 +164,17 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			user.setActive(ActiveStatusEnum.INACTIVE.getValue());
 			user.setVerified(VerifiedStatusEnum.NOT_VERIFIED.getValue());
 			user.setMembershipType(getMembershipId(getMembership()));
-			
+
 			// save the user on DB
 			user.setUserId(userService.saveUser(user));
-			
+
 			// sending registration confirmation email
 			registrationCode = KeyGenerator.generateRegistrationConfirmationCode();
-			RegistrationConfirmation reg = new RegistrationConfirmation(registrationCode, user, new Date());
-			
+			reg = new RegistrationConfirmation(registrationCode, 0, user, new Date());
 			membershipService.saveRegistrationConfirmationCode(reg);
-			
 			EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
 					registrationCode);
-			
+
 			// setting original(non MD5) password on the session
 			user.setPass(originalPass); 
 		} catch (AddressException ae) {
@@ -198,7 +183,10 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 				EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
 						registrationCode);
 			} catch (Exception e) {
-				// couldn't send confirmation email
+				if (logger.isInfoEnabled()) {
+					logger.info("Sending registration confirmation email failed!");
+					logger.info(e);
+				}
 			}
 		} catch (MessagingException me) {
 			// resend email
@@ -206,17 +194,16 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 				EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
 						registrationCode);
 			} catch (Exception e) {
-				// couldn't send confirmation email
+				logger.error("Sending registration confirmation email failed!");
+				logger.error(e);
 			}
 		} catch (Exception e) {
 			addActionError(getText("error.unknown"));
-			
-			System.out.println("Exception: ");
-			StaticDebugger.consoleLog(e);
-			
+			logger.error(e.getMessage(), e);
+
 			return ERROR;
 		}
-		
+
 		return SUCCESS;
 	}
 
@@ -229,18 +216,17 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 		if (user == null || user.getLogin() == null || "".equals(user.getLogin())) {
 			return INPUT;
 		}
-		
+
 		try {
 			EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
 					registrationCode);
 		} catch (Exception e) {
-			// couldn't send confirmation email
-			// log action?
+			logger.error(e.getMessage(), e);
 		}
-		
+
 		return SUCCESS;
 	}
-	
+
 	/*
 	 * Action that's called whenever a new user clicks the registration
 	 * confirmation url.
@@ -248,35 +234,21 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	public String confirmFreeRegistration() {
 		RegistrationConfirmation reg = null;
 		User u = null;
-		
-		clearActionErrors();
-		
-		System.out.println("RegisterAction.confirmFreeRegistration()");
-		System.out.println("confirmationCode: " + registrationCode);
-		
+
+		clearErrors();
+
 		if (registrationCode == null || "".equals(registrationCode)) {
 			return INPUT;
 		}
 		try {
 			reg = membershipService.getRegisterationConfirmationByCode(registrationCode);	
-			
-			if (reg.getUser() == null) {
-				System.out.println("reg.user == null");
-			} else {
-				System.out.println("user id: " + reg.getUser().getUserId());
-			}
-			
 			u = userService.getUser(reg.getUser().getUserId());
-			
+
 			if (u == null) {
-				System.out.println("user == null");
 				addActionError("User wasn't found");
 				return ERROR;
-			} else {
-				System.out.println("User != null");
-				System.out.println("UserId: " + u.getUserId());
 			}
-			
+
 			if (u.getActive() != ActiveStatusEnum.ACTIVE.getValue() 
 					&& u.getVerified() != VerifiedStatusEnum.VERIFIED.getValue()) {
 				u.setVerified(VerifiedStatusEnum.VERIFIED.getValue());
@@ -287,24 +259,19 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 				membershipService.removeRegistrationConfirmation(reg);
 				return SUCCESS;
 			}
-			
+
 			userService.updateUser(u);
 			membershipService.removeRegistrationConfirmation(reg);
-			
 		} catch (Exception e) {
 			addActionError(getText("error.unknown"));
-			
-			StaticDebugger.consoleLog(e); // debug
-			
+			logger.error(e.getMessage(), e);
+
 			return ERROR;
 		}
-		// set user as active and verified
-		// remove registration confirmation codes from DB
-		// redirect user to login action
-		
+
 		return SUCCESS;
 	}
-	
+
 	/**
 	 * Action that's responsible for processing premium users
 	 */
@@ -317,21 +284,21 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			user.setActive(ActiveStatusEnum.ACTIVE.getValue());
 			user.setVerified(VerifiedStatusEnum.VERIFIED.getValue());
 			user.setMembershipType(getMembershipId(getMembership()));
-			
+
 			System.out.println(user); //debug
 			//setUp account on the cloud
-			
+
 			userService.saveUser(user);
-			
+
 			// TODO send registration confirmation email!
-			
+
 		} catch (Exception ex) {
-			// log the errors
+			logger.error(ex.getMessage(), ex);
 			addActionError(ex.getMessage());
 			addActionError(ex.getCause().toString());
 			return ERROR;
 		}
-		
+
 		return SUCCESS;
 	}
 
@@ -350,7 +317,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	public List<Membership> getAvailableMemberships() {
 		return availableMemberships;
 	}
-	
+
 	public void setMembership(String membership) {
 		this.membership = membership;
 	}
@@ -384,7 +351,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	public String getPassRep() {
 		return passRep;
 	}
-	
+
 	public void setServletRequest(HttpServletRequest request) {
 		this.request = request;
 	}
@@ -410,9 +377,6 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 		String uresponse = request.getParameter("recaptcha_response_field");
 		ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(remoteAddr, challenge, uresponse);
 
-		System.out.println("challenge: " + challenge); // debug
-		System.out.println("uresponse: " + uresponse);
-		
 		return !reCaptchaResponse.isValid();
 	}
 }

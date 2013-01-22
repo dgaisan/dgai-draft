@@ -19,6 +19,10 @@
 			<column name="user_id"></column>
 		</many-to-one>
         
+        <property name="dataType" type="java.lang.Integer">
+            <column name="data_type"/>
+        </property>
+        
         <property name="dateCreated" type="java.util.Date">
             <column name="date_created" />
         </property>

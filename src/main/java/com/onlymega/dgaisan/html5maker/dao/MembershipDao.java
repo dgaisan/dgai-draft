@@ -51,9 +51,18 @@ public interface MembershipDao {
 	void removeRegistrationConfirmation(RegistrationConfirmation reg) throws HibernateException;
 	
 	/**
-	 * TODO
+	 * gets a random sign in token (data_type = 1) for the provided user;
 	 * 
-	 * @param user
+	 * @param user {@link User}
+	 * @return {@link RegistrationConfirmation}
+	 * @throws HibernateException
+	 */
+	RegistrationConfirmation getSignInTokenByUser(User user) throws HibernateException;
+	
+	/**
+	 * Removes a registration confirmation/login token by user.
+	 * 
+	 * @param user {@link User}
 	 * @throws HibernateException
 	 */
 	void removeRegistrationConfirmationsByUser(User user) throws HibernateException;

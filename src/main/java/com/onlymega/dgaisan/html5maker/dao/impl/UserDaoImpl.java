@@ -2,6 +2,7 @@ package com.onlymega.dgaisan.html5maker.dao.impl;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.User;
@@ -9,7 +10,7 @@ import com.onlymega.dgaisan.html5maker.utils.HibernateUtil;
 
 
 /**
- * @see UserDao.
+ * @see {@link UserDao} .
  */
 public class UserDaoImpl implements UserDao {
 
@@ -18,6 +19,10 @@ public class UserDaoImpl implements UserDao {
 		Session session = null;
 		String query = "from User u where u.login = ? and u.pass = ?";
 
+		// TODO query user w/o password, no need to keep it in session.
+		// instead query count(*) with login & pass and if it's > 0 then
+		// query for the user by user name only.
+		
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			user = (User) session.createQuery(query)
@@ -61,42 +66,41 @@ public class UserDaoImpl implements UserDao {
 	public int saveUser(final User user) throws HibernateException {
 		Session session = null;
 		User toBeSaved = new User(user);
-		
-		System.out.println("UserDaoImpl.saveUser()");
-		
+		Transaction tx = null;
+
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			session.getTransaction().begin();
+			tx = session.getTransaction();
+			tx.begin();
 			session.save(toBeSaved);
-			session.getTransaction().commit();
+			tx.commit();
 		} catch (HibernateException ex) {
-			session.getTransaction().rollback();
+			if (tx != null) { tx.rollback(); }
 			throw ex;
 		} finally {
-			if (session != null && session.isOpen()) {
-				session.flush();
-				session.close();
-			}
+                    if (session != null && session.isOpen()) {
+			session.close();
+                    }
 		}
-		
-		System.out.println("generated ID: " + toBeSaved.getUserId());
+
 		return toBeSaved.getUserId(); 
 	}
 
 	public void updateUser(User user) throws HibernateException {
 		Session session = null;
-		
+		Transaction tx = null;
+
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			session.getTransaction().begin();
+			tx = session.getTransaction();
+			tx.begin();
 			session.update(user);
-			session.getTransaction().commit();
+			tx.commit();
 		} catch (HibernateException ex) {
-			session.getTransaction().rollback();
+			if (tx != null) { tx.rollback(); }
 			throw ex;
 		} finally {
 			if (session != null && session.isOpen()) {
-				session.flush();
 				session.close();
 			}
 		}
@@ -111,14 +115,7 @@ public class UserDaoImpl implements UserDao {
 			ret  = (User) session.get(User.class, userId);
 			
 			if (ret == null) {
-				System.out.println("UserDaoImpl.getUser()");
-				System.out.println("get ret == null");
-				
 				ret = (User) session.load(User.class, userId);
-				
-				if (ret == null) {
-					System.out.println("load ret == null");
-				}
 			}
 			
 		} catch (HibernateException ex) {
@@ -146,19 +143,10 @@ public class UserDaoImpl implements UserDao {
 			throw ex;
 		} finally {
 			if (session != null && session.isOpen()) {
-				session.flush();
 				session.close();
 			}
 		}
 		
-		System.out.println("UserDaoImpl.userExists()");
-		if (user == null) {
-			System.out.println("User doesn't exist");
-		} else {
-			System.out.println("user " + user.getLogin() + " exists");
-		}
-		
 		return user != null;
 	}
-	                        
 }

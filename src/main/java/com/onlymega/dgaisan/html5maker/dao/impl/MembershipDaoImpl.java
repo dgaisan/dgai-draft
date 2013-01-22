@@ -93,7 +93,29 @@ public class MembershipDaoImpl implements MembershipDao {
 	public void removeRegistrationConfirmationsByUser(User user)
 			throws HibernateException {
 		
-		// TODO, maybe
+		Session session = null;
+		String query = "delete from RegistrationConfirmation r " +
+				"where r.user_id = ?";
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			session.getTransaction().begin();
+			session.createQuery(query).setInteger(0, user.getUserId()).executeUpdate();
+			session.getTransaction().commit();
+		} catch (HibernateException e) {
+			session.getTransaction().rollback();
+			throw e;
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.flush();
+				session.close();
+			}
+		}
+	}
+
+	public RegistrationConfirmation getSignInTokenByUser(User user)
+			throws HibernateException {
+		// TODO What is this mean for??? Forgot :)
+		return null;
 	}
 
 }

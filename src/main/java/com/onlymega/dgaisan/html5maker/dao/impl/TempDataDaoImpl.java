@@ -19,11 +19,8 @@ public class TempDataDaoImpl implements TempDataDao {
 			session.save(data);
 			session.getTransaction().commit();
 		} catch (HibernateException e) {
-			//TODO log the rolldback
-			System.out.println("TempDataDaoImpl.saveData()");
-			System.out.println("Rolling back!"); // debug
- 			
-			session.getTransaction().rollback();	
+			session.getTransaction().rollback();
+			throw e;
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.flush();

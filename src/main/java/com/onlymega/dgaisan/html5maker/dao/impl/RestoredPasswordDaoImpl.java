@@ -46,7 +46,6 @@ public class RestoredPasswordDaoImpl implements RestoredPasswordDao {
 				session.close();
 			}
 		}
-		
 	}
 
 	public void saveActivationCode(RestoredPassword code)
@@ -60,7 +59,6 @@ public class RestoredPasswordDaoImpl implements RestoredPasswordDao {
 			session.save(code);
 			session.getTransaction().commit();
 		} catch (HibernateException ex) {
-			// log exception ?
 			session.getTransaction().rollback();
 			throw ex;
 		} finally {

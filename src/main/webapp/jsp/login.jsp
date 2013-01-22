@@ -15,7 +15,7 @@
 	<s:actionerror/>
 
 	<s:if test="%{#session['loggedin'] != null}">
-		<% response.sendRedirect(request.getContextPath() + "/jsp/home.jsp"); %>
+		<% response.sendRedirect(request.getContextPath() + "/homepage.html"); %>
 	</s:if>
 
 
@@ -35,6 +35,11 @@
 	<br />
 	<s:a action="memberships">Need Account? Click here to register</s:a>
 	<a href="jsp/restorepassword.jsp"> Forgot Password? </a>
+	
+	<br />
+	<hr />
+	<s:a action="design/create">Create New Banner</s:a>
+	
 </body>
 </html>
 	
