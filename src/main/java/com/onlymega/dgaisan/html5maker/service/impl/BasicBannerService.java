@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
+import com.amazonaws.AmazonServiceException;
 import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.dao.BannerDao;
 import com.onlymega.dgaisan.html5maker.dao.CloudDao;
@@ -14,8 +15,12 @@ import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.CloudData;
 import com.onlymega.dgaisan.html5maker.model.TempData;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
+import com.onlymega.dgaisan.html5maker.service.exception.BannerServiceException;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import java.util.Date;
+
+import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -27,7 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class BasicBannerService implements BannerService, Serializable {
     private static final long serialVersionUID = 1L;
-
+    private static final Logger log = Logger.getLogger(BasicBannerService.class.getName());
+    
     private TempDataDao tempDataDao;
     private BannerDao bannerDao;
     private CloudDao cloudDao;
@@ -84,12 +90,17 @@ public class BasicBannerService implements BannerService, Serializable {
     }
 
     @Transactional
-    public int saveBanner(Banner b, CloudData c) {
-        
+    public int saveBanner(Banner b, CloudData c) throws HibernateException, AmazonServiceException, BannerServiceException {
         b.setDateCreated(new Date());
-        
-        bannerDao.save(b);
-        
+
+        try {
+        	cloudDao.save(c.getBucketName(), c.getPath(), c.getFilename(), c.getInputFile());
+        	bannerDao.save(b);
+        } catch (Exception e) {
+			log.error(String.format("Couln't save the banner (%s, %s) for user with ID: ", 
+					String.valueOf(b.getId()), b.getUser().getUserId()));
+			throw new BannerServiceException();
+		}
         
         return b.getId();
     }

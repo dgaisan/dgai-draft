@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+ 
+<hibernate-mapping>
+    <class name="com.onlymega.dgaisan.html5maker.model.User" table="users" >
+        <id name="userId" type="java.lang.Integer">
+            <column name="id"  />
+            <generator class="increment" />
+        </id>
+        
+        <property name="userName" type="string">
+            <column name="username" length="50" />
+        </property>
+        
+        <property name="login" type="string">
+            <column name="login" length="20" not-null="true" unique="true" />
+        </property>
+		
+		<property name="pass" type="string">
+            <column name="password" length="20" not-null="true" unique="true" />
+        </property>
+        
+        <property name="dateCreated" type="java.util.Date">
+            <column name="date_created" />
+        </property>
+        
+        <property name="role" type="java.lang.Integer">
+            <column name="role" length="10" />
+        </property>
+        
+        <property name="active" type="java.lang.Integer">
+            <column name="active" length="10" />
+        </property>
+        
+        <property name="verified" type="java.lang.Integer">
+            <column name="verified" length="10" />
+        </property>
+        
+        <property name="membershipType" type="java.lang.Integer">
+            <column name="membership_type" length="10" />
+        </property>
+        
+    </class>
+</hibernate-mapping>

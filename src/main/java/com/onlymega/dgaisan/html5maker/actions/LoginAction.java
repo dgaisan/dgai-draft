@@ -51,10 +51,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 	private HttpServletRequest request;
 	private Map<String, Object> session;
 
-	static {
-//		PropertyConfigurator.configure("log4j.properties");
-	}
-
+	
 	public String getLogin() {
 		return login;
 	}
@@ -134,31 +131,31 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     		}
 
     		// retrieve a user
-		this.user = userDao.getUserByLoginPass(this.login, MD5Util.convertIntoMD5(this.password));
+    		this.user = userDao.getUserByLoginPass(this.login, MD5Util.convertIntoMD5(this.password));
 
-                // Handling of non-existing user.
-                if (this.user == null) {
-                        addActionError(getText("login.error.user.not_exists"));
+    		// Handling of non-existing user.
+    		if (this.user == null) {
+    			addActionError(getText("login.error.user.not_exists"));
 
-                        if (loginAttempts == null) {
-                                loginAttempts = 0;
-                        }
-                        loginAttempts++;
-                        session.put(CommonData.MULTIPLE_LOGIN_ATTEMPTS, loginAttempts);
+    			if (loginAttempts == null) {
+    				loginAttempts = 0;
+    			}
+    			loginAttempts++;
+    			session.put(CommonData.MULTIPLE_LOGIN_ATTEMPTS, loginAttempts);
 
-                        return INPUT;
-                } 
+    			return INPUT;
+    		} 
 
-                // handling of inactive user
-                if (user.getActive() == ActiveStatusEnum.INACTIVE.getValue() ||
-                                user.getVerified() == VerifiedStatusEnum.NOT_VERIFIED.getValue()) {
+    		// handling of inactive user
+    		if (user.getActive() == ActiveStatusEnum.INACTIVE.getValue() ||
+    				user.getVerified() == VerifiedStatusEnum.NOT_VERIFIED.getValue()) {
 
-                        addActionError(getText("login.error.user.inactive_user"));
+    			addActionError(getText("login.error.user.inactive_user"));
 
-                        return INPUT;
-                }
+    			return INPUT;
+    		}
 
-                session.remove(CommonData.MULTIPLE_LOGIN_ATTEMPTS);
+    		session.remove(CommonData.MULTIPLE_LOGIN_ATTEMPTS);
 	    	session.put(CommonData.USER_OBJECT, this.user);
 	    	session.put(CommonData.LOGGED_IN, user.getRole());	    	
 

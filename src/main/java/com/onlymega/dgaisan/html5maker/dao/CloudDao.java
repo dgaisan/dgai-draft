@@ -26,8 +26,7 @@ public interface CloudDao {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	String save(String bucketName, String path, String filename, File inputFile) 
-		throws AmazonServiceException, IOException, Exception;
+	String save(String bucketName, String path, String filename, File inputFile) throws IOException;
 	
 	
 }
