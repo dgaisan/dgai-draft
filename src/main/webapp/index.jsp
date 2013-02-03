@@ -1,4 +1,11 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html PUBLIC 
+    "-//W3C//DTD XHTML 1.1 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    
+<%@taglib prefix="s" uri="/struts-tags" %>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -37,7 +44,21 @@
                         <div class="banner_container">
                             <div class="menu">
                             	<ul>
-                                	<li><a href="signin.html" title="Sign In" class="sign"><span>Sign In</span></a></li>
+                                	<li>
+                                        <s:if test="%{#session['theUser'] == null}">
+                                            <a href="signin.html" title="Sign In" class="sign">
+                                                <span>Sign In</span>
+                                            </a>
+                                        </s:if>
+                                        <s:elseif test="%{#session['loggedin'] == 1}">
+                                            <a href="homepage.html" title="Dashboard" class="sign">
+                                                <span>Dashboard</span>
+                                            </a>
+                                            <a href="logout.html" title="Logout" class="sign">
+                                                <span>Sign Out</span>
+                                            </a>
+                                        </s:elseif>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="package hint_free">

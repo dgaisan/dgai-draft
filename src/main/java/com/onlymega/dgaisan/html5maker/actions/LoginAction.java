@@ -2,6 +2,7 @@ package com.onlymega.dgaisan.html5maker.actions;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -20,6 +21,8 @@ import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.ActiveStatusEnum;
+import com.onlymega.dgaisan.html5maker.model.Membership;
+import com.onlymega.dgaisan.html5maker.model.MembershipTypesEnum;
 import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.model.VerifiedStatusEnum;
@@ -203,7 +206,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 
     	try {
     		session = ServletActionContext.getContext().getSession();
-    		user  = (User) session.get("theUser");
+    		user  = (User) session.get(CommonData.USER_OBJECT);
 
     		if (user != null) {
     			session.remove(CommonData.USER_OBJECT);
@@ -219,8 +222,38 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     	return SUCCESS;
     }
 
+    /**
+     * Action that takes a user to the proper Dash board.
+     */
     public String home() {
-    	return SUCCESS;
+    	System.out.println("LoginAction.home()"); // XXX remove me
+
+    	Map<String, Object> session = null;
+    	User user = null;
+    	List<Membership> availableMemberships = null;
+
+    	try {
+    		session = ServletActionContext.getContext().getSession();
+    		user = (User) session.get(CommonData.USER_OBJECT);
+
+    		if (user == null) {
+    			System.out.println("user == null"); // XXX remove me!
+    			return ERROR;
+    		}
+
+    		availableMemberships = membershipDao.getAvailableMemberships();
+
+    		for (Membership m : availableMemberships) {
+    			if (m.getId() == user.getMembershipType() && m.getName().equals(CommonData.FREE_MEMBERSHIP)) {
+    				return "FREE";
+    			}
+    		}
+    		return "PREMIUM";
+
+		} catch (Exception e) {
+			e.printStackTrace(); // XXX remove me
+			return ERROR;
+		}
     }
 
 	public void setUserDao(UserDao userDao) {

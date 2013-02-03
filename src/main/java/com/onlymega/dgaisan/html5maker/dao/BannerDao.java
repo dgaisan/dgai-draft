@@ -1,5 +1,7 @@
 package com.onlymega.dgaisan.html5maker.dao;
 
+import org.hibernate.HibernateException;
+
 import com.onlymega.dgaisan.html5maker.model.Banner;
 
 /**
@@ -14,7 +16,7 @@ public interface BannerDao {
      * 
      * @param b {@link Banner}
      */
-    void save(Banner b);
+    void save(Banner b) throws HibernateException;
     
     
 }

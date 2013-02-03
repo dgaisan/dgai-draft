@@ -17,6 +17,8 @@ import com.onlymega.dgaisan.html5maker.model.TempData;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.service.exception.BannerServiceException;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
+import com.onlymega.dgaisan.html5maker.utils.ZipPackage;
+
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -33,15 +35,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicBannerService implements BannerService, Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger log = Logger.getLogger(BasicBannerService.class.getName());
-    
+   
     private TempDataDao tempDataDao;
     private BannerDao bannerDao;
     private CloudDao cloudDao;
 
     @Transactional
-    public String saveTempData(TempData data)throws Exception {
+    public String saveTempData(TempData data, String tempDir)throws Exception {
         getTempDataDao().saveData(data);
 
+        new ZipPackage(data, tempDir, data.getDataToken());
+        
         return data.getDataToken();
     }
 
@@ -94,9 +98,10 @@ public class BasicBannerService implements BannerService, Serializable {
         b.setDateCreated(new Date());
 
         try {
-        	cloudDao.save(c.getBucketName(), c.getPath(), c.getFilename(), c.getInputFile());
         	bannerDao.save(b);
+        	cloudDao.save(c.getBucketName(), c.getPath(), c.getFilename(), c.getInputFile());
         } catch (Exception e) {
+        	e.printStackTrace(); // XXX remove me
 			log.error(String.format("Couln't save the banner (%s, %s) for user with ID: ", 
 					String.valueOf(b.getId()), b.getUser().getUserId()));
 			throw new BannerServiceException();

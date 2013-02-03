@@ -11,15 +11,12 @@
     <link rel="shortcut icon" type="image/png" href="favicon.png">
     <link rel="image_src" href="image.png">
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,900,700italic|Ubuntu:300,700&subset=latin,cyrillic-ext">
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="<s:url value='/css/main.css'/>" />
     <title>
-        HTML5 MAKER | Preview and Download | www.html5maker.com
+        HTML5 MAKER | Preview and Download | www.html5maker.com (updated)
     </title>
 </head>
 <body>
-    <s:actionerror />
-    <hr />
-
     <div class="wrapper">
         <header>
             <div class="repeatx header">
@@ -55,13 +52,17 @@
                 <div class="article_banner">
                 	<div class="plane error_404">
                     	<span>404</span>
-                    	<p>OOPS! SOMETHING WENT WRONG :-(</p>
+                        <p>OOPS! Something went wrong :-( </p>
                     </div>
                     <div class="signing_text signing_text_second signing_text_second_error">
-                    	<p>Possible reason is that the page you are looking for does not exist.</p>
+                    	<s:if test="hasActionErrors()">
+                            <s:iterator value="actionErrors">
+                                <p><s:property escape="false" /></p>
+                            </s:iterator>
+                        </s:if>
                     </div><!--end input_block-->
                     <div class="signing_text signing_text_second signing_text_second_404">
-                    	<p>Go back to the <a href="#" title="">homepage</a> or <a href="#" title="">contact us</a> about the problem.</p>
+                    	<p>Go back to the <a href="index.html" title="">homepage</a> or <a href="#" title="">contact us</a> about the problem.</p>
                     </div><!--end input_block-->
                 </div>
             </div>

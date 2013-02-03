@@ -62,7 +62,7 @@
     <bean id = "saveData" 
             class = "com.onlymega.dgaisan.html5maker.actions.SaveConfigAction">
 
-            <property name="tempDataDao" ref="tempDataDaoImpl" />
+            <property name="bannerService" ref="bannerService" />
     </bean>
 
     <bean id = "download"

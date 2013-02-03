@@ -6,7 +6,7 @@ import java.io.IOException;
 import com.amazonaws.AmazonServiceException;
 
 /**
- * A class that's dealing with cloud related operations.
+ * DAO for saving files on S3.
  * It copies/saves/reads files in the could.
  * 
  * @author Dmitri Gaisan

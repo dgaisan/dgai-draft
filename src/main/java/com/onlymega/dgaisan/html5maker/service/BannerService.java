@@ -8,12 +8,14 @@ import java.io.InputStream;
 
 public interface BannerService {
 	/**
-	 * Saves banner's temp data.
+	 * Saves temporary banner (banner files including zip file).
 	 * 
 	 * @param data {@link TempData}
+	 * @param tempDir temporary directory
+	 * 
 	 * @return {@link String generated data token}
 	 */
-	String saveTempData(final TempData data) throws Exception;
+	String saveTempData(final TempData data, String tempDir) throws Exception;
 	
 	/**
 	 * Saves an image.
@@ -33,6 +35,7 @@ public interface BannerService {
          * @return newly generated {@link Banner} id. 
          */
 	int saveBanner(Banner b, CloudData c);
+
 	
 	
 }

@@ -51,10 +51,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	private String passRep;
 	private String registrationCode;
 
-	static {
-		//PropertyConfigurator.configure("log4j.properties");
-	}
-
+	
 	public void validateRegisterFree() throws Exception {
 		clearErrors();
 
@@ -124,6 +121,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	 * @throws Exception
 	 */
 	public String membershipPage() throws Exception {
+		System.out.println("RegisterAction.membershipPage()"); // XXX remove me
 		try {
 			availableMemberships = membershipService.getAvailableMemberships();
 		} catch (Exception e) {
@@ -141,6 +139,8 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	 * @return result
 	 */
 	public String registerFree() {
+		System.out.println("RegisterAction.registerFree()"); // XXX remove me
+		
 		try {
 			if (invalidRecaptcha()) {
 				clearErrors();
@@ -154,6 +154,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 
 				return INPUT;
 			}
+
 			String originalPass = user.getPass();
 			RegistrationConfirmation reg = null;
 
@@ -183,6 +184,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 				EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
 						registrationCode);
 			} catch (Exception e) {
+				e.printStackTrace(); // XXX remove me
 				if (logger.isInfoEnabled()) {
 					logger.info("Sending registration confirmation email failed!");
 					logger.info(e);
@@ -194,10 +196,12 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 				EmailService.sendRegistrationConfirmationEmail(user.getLogin(), 
 						registrationCode);
 			} catch (Exception e) {
+				e.printStackTrace(); // XXX remove me
 				logger.error("Sending registration confirmation email failed!");
 				logger.error(e);
 			}
 		} catch (Exception e) {
+			e.printStackTrace(); // XXX remove me
 			addActionError(getText("error.unknown"));
 			logger.error(e.getMessage(), e);
 
@@ -213,6 +217,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	 * @return SUCCESS
 	 */
 	public String resendConfirmationEmail() {
+		System.out.println("RegisterAction.resendConfirmationEmail()"); // XXX remove me
 		if (user == null || user.getLogin() == null || "".equals(user.getLogin())) {
 			return INPUT;
 		}
@@ -232,6 +237,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 	 * confirmation url.
 	 */
 	public String confirmFreeRegistration() {
+		System.out.println("RegisterAction.confirmFreeRegistration()"); // XXX remove me
 		RegistrationConfirmation reg = null;
 		User u = null;
 
@@ -240,8 +246,18 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 		if (registrationCode == null || "".equals(registrationCode)) {
 			return INPUT;
 		}
+
+		System.out.println("registration code = " + getConfirmationCode()); // XXX remove me
+		
 		try {
-			reg = membershipService.getRegisterationConfirmationByCode(registrationCode);	
+			reg = membershipService.getRegisterationConfirmationByCode(registrationCode);
+			
+			if (reg == null) {
+				System.out.println("Couldn complete user registration: Registration code not found");
+				addActionError("Registration code wasn't recognized");
+				return ERROR;
+			}
+			
 			u = userService.getUser(reg.getUser().getUserId());
 
 			if (u == null) {
@@ -263,6 +279,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			userService.updateUser(u);
 			membershipService.removeRegistrationConfirmation(reg);
 		} catch (Exception e) {
+			e.printStackTrace();
 			addActionError(getText("error.unknown"));
 			logger.error(e.getMessage(), e);
 
@@ -311,6 +328,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 				return m.getId();
 			}
 		}
+
 		return 0;
 	}
 

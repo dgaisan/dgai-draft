@@ -12,10 +12,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.onlymega.dgaisan.html5maker.dao.CloudDao;
 
 /**
- * DAO for saving files on S3.
- * 
- * @author Dmitri Gaisan
- *
+ * Implements {@link CloudDao}.
  */
 public class CloudDaoImpl implements CloudDao {
 
@@ -31,7 +28,7 @@ public class CloudDaoImpl implements CloudDao {
 		PutObjectResult res = s3.putObject(new PutObjectRequest(bucketName, path + File.separator + filename, inputFile));
         
 		
-		return res.getExpirationTime().toString(); // TODO return ??
+		return res.getExpirationTime().toString(); // TODO decide what to return
 	}
 
 	

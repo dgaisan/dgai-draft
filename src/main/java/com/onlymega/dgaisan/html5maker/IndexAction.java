@@ -5,19 +5,13 @@ import java.util.Date;
 import com.opensymphony.xwork2.conversion.annotations.Conversion;
 import com.opensymphony.xwork2.conversion.annotations.TypeConversion;
 
-/**
- * 
- */
-@Conversion()
 public class IndexAction extends ActionSupport {
-    
-    private Date now = new Date(System.currentTimeMillis());
-    
-    @TypeConversion(converter = "com.onlymega.dgaisan.html5maker.DateConverter")
-    public Date getDateNow() { return now; }
-    
+	private static final long serialVersionUID = 148474030L;
+
+	/**
+	 * Empty action
+	 */
     public String execute() throws Exception {
-        now = new Date(System.currentTimeMillis());
         return SUCCESS;
     }
 }

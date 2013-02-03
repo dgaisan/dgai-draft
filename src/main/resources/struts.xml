@@ -56,7 +56,7 @@
                 
 		<!-- keeping index.html for backward compatability -->
 		<action name="index" class="com.onlymega.dgaisan.html5maker.IndexAction">
-			<result>/jsp/login.jsp</result>
+			<result>/index.jsp</result>
 		</action>
 		
 		<action name="login" class="login"> 
@@ -66,13 +66,13 @@
 			<result name="save_banners" type="redirectAction">
 				<param name="actionName">saveBanner</param>
 			</result>
-			<result>/jsp/hello.jsp</result>
+			<result type="chain">homepage</result>
 		</action>
 
 		<action name="logout" class="login" method="logout"> 
 			<result name="input">/jsp/login.jsp</result>
 			<result name="error">/error.jsp</result>
-			<result>jsp/login.jsp</result>
+			<result>/jsp/login.jsp</result>
 		</action>
 
 		<action name="memberships" class="register" method="membershipPage">
@@ -170,7 +170,8 @@
 			
 			<result name="error">/error.jsp</result>
 			<result name="input">/jsp/login.jsp</result>
-			<result>/WEB-INF/jsp/dashboard.jsp</result>
+			<result name="FREE">/WEB-INF/jsp/Dashboard_Free.jsp</result>
+			<result name="PREMIUM">/WEB-INF/jsp/Dashboard_Paid.jsp</result>
 		</action>
 	</package>
 	

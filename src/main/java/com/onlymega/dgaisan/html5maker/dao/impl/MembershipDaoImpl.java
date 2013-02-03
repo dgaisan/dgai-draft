@@ -21,6 +21,9 @@ import com.onlymega.dgaisan.html5maker.utils.HibernateUtil;
  */
 public class MembershipDaoImpl implements MembershipDao {
 
+	/**
+	 * TODO Update this method. It shouldn't be static.
+	 */
 	public List<Membership> getAvailableMemberships() throws Exception {
 		List<Membership> ret = new ArrayList<Membership>();
 		
