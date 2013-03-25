@@ -31,6 +31,8 @@
         <property name="tempDataDao" ref="tempDataDaoImpl" />
         <property name="bannerDao" ref="bannerDao" />
         <property name="cloudDao" ref="cloudDao" />
+        <property name="membershipDao" ref="membershipServiceImpl" />
+        <property name="userDao" ref="userServiceImpl" />
     </bean>
 
     <bean id = "login" 
@@ -57,7 +59,10 @@
     </bean>
 
     <bean id = "saveImage" 
-            class = "com.onlymega.dgaisan.html5maker.actions.SaveImageAction"></bean>
+            class = "com.onlymega.dgaisan.html5maker.actions.SaveImageAction">
+    
+    	    <property name="bannerService" ref="bannerService" />
+    </bean>
 
     <bean id = "saveData" 
             class = "com.onlymega.dgaisan.html5maker.actions.SaveConfigAction">

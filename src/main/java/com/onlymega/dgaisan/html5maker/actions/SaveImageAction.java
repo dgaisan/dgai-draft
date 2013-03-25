@@ -8,13 +8,17 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
 import org.apache.struts2.util.ServletContextAware;
+import org.springframework.util.StringUtils;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
+import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
+import com.onlymega.dgaisan.html5maker.utils.TokenUtil;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
@@ -37,7 +41,11 @@ public class SaveImageAction extends ActionSupport
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private ServletContext servletContext;
+	
+	private BannerService bannerService;
 
+	private String token;
+	
 	@Override
 	public String execute() throws Exception {
 		ServletInputStream stream = null;
@@ -55,9 +63,16 @@ public class SaveImageAction extends ActionSupport
 			stream = request.getInputStream();
 			newFileName = KeyGenerator.generateNameHash() + ".png";
 
-			fullPath = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER + File.separator + newFileName;
-			String dirFileName = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
+			if (getToken() != null || !"".equals(getToken())) {
+				String userId = TokenUtil.extractUserId(getToken());
+				String folderName = getBannerService().getUserFolder(userId);
 
+				fullPath = servletContext.getRealPath("/") + folderName + File.separator + newFileName;
+			} else {
+				fullPath = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER + File.separator + newFileName;
+			}
+			String dirFileName = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
+			
 			dir = new File(dirFileName);
 			file = new File(dirFileName, newFileName);
 			System.out.println("fullPath: " + fullPath);
@@ -103,5 +118,23 @@ public class SaveImageAction extends ActionSupport
 
 	public void setServletContext(ServletContext context) {
 		this.servletContext = context;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		System.out.println("SaveImageAction.setToken()"); // XXX remove me
+		System.out.println("token == " +  token); // XXX remov eme
+		this.token = token;
+	}
+
+	public BannerService getBannerService() {
+		return bannerService;
+	}
+
+	public void setBannerService(BannerService bannerService) {
+		this.bannerService = bannerService;
 	}
 }

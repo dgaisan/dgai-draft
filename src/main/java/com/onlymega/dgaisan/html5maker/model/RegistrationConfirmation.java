@@ -6,6 +6,7 @@ public class RegistrationConfirmation {
 	private int regId;
 	private String confirmationCode;
 	/*
+	 * dataType:
 	 * 0 - registration confirmation
 	 * 1 - sign in token
 	 */

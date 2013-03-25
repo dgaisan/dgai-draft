@@ -15,8 +15,9 @@
 	<script>
 		var 
 		flashvars = {
-			banner_id: '<s:property value="bannerId" />',
-			token: '<s:property value="token" />',
+			token: '8473jfddndkdnck93uejdkdkwojdm',
+			bn_id: '<s:property value="bannerId" />',
+			us_id: '<s:property value="token" />',
 			root_url: 'http://localhost:8080/'
 			//root_url: 'http://localhost:8080/draft-struts/'
 					};

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,13 +21,11 @@ import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.ActiveStatusEnum;
 import com.onlymega.dgaisan.html5maker.model.Membership;
-import com.onlymega.dgaisan.html5maker.model.MembershipTypesEnum;
 import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.model.VerifiedStatusEnum;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.MD5Util;
-import com.onlymega.dgaisan.html5maker.utils.StaticDebugger;
 import com.onlymega.dgaisan.html5maker.utils.ValidationUtil;
 import com.opensymphony.xwork2.ActionSupport;
 
@@ -43,12 +40,14 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 	private static final Logger logger = Logger.getLogger(LoginAction.class.getName());
 
 	private User user;
+	
+	// TODO replacesDAOs with BasserService
 	private UserDao userDao;
 	private MembershipDao membershipDao;
 
 	private String login;
 	private String password;
-	private String bannerId;
+
 	private String token;
 
 	private HttpServletRequest request;
@@ -69,14 +68,6 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public String getBannerId() {
-		return bannerId;
-	}
-
-	public void setBannerId(String bannerId) {
-		this.bannerId = bannerId;
 	}
 
 	public String getToken() {
@@ -112,6 +103,8 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     	String userToken = "";
     	RegistrationConfirmation userWithToken = null;
 
+    	System.out.println("LoginAction.execute()"); // XXX remov eme
+    	
     	try {
     		loginAttempts = 
     			(Integer) session.get(CommonData.MULTIPLE_LOGIN_ATTEMPTS);
@@ -166,6 +159,8 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 	    		return (CommonData.ADMIN);
 	    	}
 
+	    	// at this point user is logged in
+	    	// TODO 
 	    	userWithToken = membershipDao.getSignInTokenByUser(user);
 	    	if (userWithToken == null) {
 		    	// add this user to the logged in user list
@@ -186,6 +181,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 	    	}
 
 		} catch (Exception ex) {
+			ex.printStackTrace(); // XXX remove me
 			logger.error(ex.getMessage(), ex);
 			addActionError(getText("error.unknown"));
 
@@ -193,8 +189,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 		}
         return SUCCESS;
     }
-    
-    
+
     /**
      * logout action.
      * 
@@ -215,6 +210,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     			user = null;
     		}
     	} catch (Exception ex) {
+    		ex.printStackTrace(); // XXX remove me
     		logger.error(ex.getMessage(), ex);
     		return ERROR;
     	}
@@ -240,7 +236,8 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     			System.out.println("user == null"); // XXX remove me!
     			return ERROR;
     		}
-
+    		
+    		// TODO Update this logic to call bannerService.isPremium()...
     		availableMemberships = membershipDao.getAvailableMemberships();
 
     		for (Membership m : availableMemberships) {

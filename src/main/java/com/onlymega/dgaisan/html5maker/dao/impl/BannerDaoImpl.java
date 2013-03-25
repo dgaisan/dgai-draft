@@ -33,5 +33,26 @@ public class BannerDaoImpl implements BannerDao {
                 session.close();
             }
         }
-    } 
+    }
+
+	public int countBannersByUser(String userId) throws Exception {
+		Session session = null;
+        String q = "Select count(*) from banners where user_id = ?";
+        int ret = 100;
+
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            ret = 
+            	(Integer) session.createSQLQuery(q).setString(0, userId).uniqueResult();
+
+        } catch (HibernateException ex) {
+            throw ex;
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return ret;
+	} 
 }

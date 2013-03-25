@@ -25,7 +25,7 @@
                         <div class="banner_container">
                             <div class="banner_left banner_left_10">
                                 <div class="logo">
-                                    <div class="package logo_main" onclick="location.href='http://html5maker.com/';"
+                                    <div class="package logo_main" onclick="location.href='index.html';"
                                     style="cursor:pointer;" title="Back to Home">
                                         HTML5 Maker
                                     </div>
@@ -39,7 +39,21 @@
                                 	<li><a href="#" title="">Create HTML5 Banner</a></li>
                                 	<li><a href="#" title="">FAQs</a></li>
                                 	<li><a href="#" title="">Contact</a></li>
-                                	<li><a href="#" title="Sign In" class="sign"><span>Sign In</span></a></li>
+                                	<li>
+                                        <s:if test="%{#session['theUser'] == null}">
+                                            <a href="signin.html" title="Sign In" class="sign">
+                                                <span>Sign In</span>
+                                            </a>
+                                        </s:if>
+                                        <s:elseif test="%{#session['loggedin'] == 1}">
+                                            <a href="homepage.html" title="Dashboard" class="sign">
+                                                <span>Dashboard</span>
+                                            </a>
+                                            <a href="logout.html" title="Logout" class="sign">
+                                                <span>Sign Out</span>
+                                            </a>
+                                        </s:elseif>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

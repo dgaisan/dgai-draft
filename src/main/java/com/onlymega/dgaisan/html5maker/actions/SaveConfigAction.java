@@ -43,10 +43,12 @@ public class SaveConfigAction extends ActionSupport
 
 	private String json;
 	private String html;
+	private String images_array;
+	private String bn_width;
+	private String bn_height;
 
-	private String bannerId;
 	// user token is populated when user is logged in...
-	private String userToken;
+	private String token;
 
 	private ServletContext context;
 	private HttpServletResponse response;
@@ -56,7 +58,7 @@ public class SaveConfigAction extends ActionSupport
 	private BannerService bannerService;
 
 	public void validate() {
-		//TODO validate incoming data
+		//TODO validate incoming data (image)
 	}
 
 	@Override
@@ -116,20 +118,12 @@ public class SaveConfigAction extends ActionSupport
 		this.html = html;
 	}
 	
-	public String getBannerId() {
-		return bannerId;
-	}
-
-	public void setBannerId(String bannerId) {
-		this.bannerId = bannerId;
-	}
-
 	public String getToken() {
-		return userToken;
+		return token;
 	}
 
 	public void setToken(String token) {
-		this.userToken = token;
+		this.token = token;
 	}
 
 	public void setServletResponse(HttpServletResponse response) {
@@ -150,5 +144,29 @@ public class SaveConfigAction extends ActionSupport
 
 	public void setServletContext(ServletContext context) {
 		this.context = context;
+	}
+
+	public String getImages_array() {
+		return images_array;
+	}
+
+	public void setImages_array(String imagesArray) {
+		images_array = imagesArray;
+	}
+
+	public String getBn_width() {
+		return bn_width;
+	}
+
+	public void setBn_width(String bnWidth) {
+		bn_width = bnWidth;
+	}
+
+	public String getBn_height() {
+		return bn_height;
+	}
+
+	public void setBn_height(String bnHeight) {
+		bn_height = bnHeight;
 	}
 }

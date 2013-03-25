@@ -6,4 +6,6 @@ public interface TempDataDao {
 	void saveData(TempData data) throws Exception;
 	
 	TempData getDataByToken(String token) throws Exception;
+
+	TempData getDataById(Long tempDataId);
 }

@@ -10,16 +10,22 @@ import com.amazonaws.AmazonServiceException;
 import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.dao.BannerDao;
 import com.onlymega.dgaisan.html5maker.dao.CloudDao;
+import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
 import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
+import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.CloudData;
+import com.onlymega.dgaisan.html5maker.model.Membership;
+import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
 import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.service.exception.BannerServiceException;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.ZipPackage;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -39,12 +45,14 @@ public class BasicBannerService implements BannerService, Serializable {
     private TempDataDao tempDataDao;
     private BannerDao bannerDao;
     private CloudDao cloudDao;
+    private MembershipDao membershipDao;
+    private UserDao userDao;
 
     @Transactional
     public String saveTempData(TempData data, String tempDir)throws Exception {
+    	System.out.println("BasicBannerService.saveTempData()");
         getTempDataDao().saveData(data);
-
-        new ZipPackage(data, tempDir, data.getDataToken());
+        new ZipPackage(data, tempDir, data.getDataToken()).create();
         
         return data.getDataToken();
     }
@@ -110,6 +118,43 @@ public class BasicBannerService implements BannerService, Serializable {
         return b.getId();
     }
 
+    public TempData getTempData(String tempDataId) {
+		return tempDataDao.getDataById(Long.valueOf(tempDataId));
+	}
+
+	public boolean isPremiumAccount(User user) throws Exception {
+		List<Membership> availableMemberships = membershipDao.getAvailableMemberships();
+
+		for (Membership m : availableMemberships) {
+			if (m.getId() == user.getMembershipType() 
+					&& m.getName().equals(CommonData.FREE_MEMBERSHIP)) {
+				return false;
+			}
+		}
+		return true;
+	}
+    
+	public int countBanners(User user) throws Exception {
+		System.out.println("BasicBannerService.countBanners()"); //XXX remove me
+		
+		int ret = bannerDao
+			.countBannersByUser(String.valueOf(user.getUserId()));
+		
+		System.out.println("count = " + ret); // XXX remove me
+		
+		return ret;
+	}
+
+	public String getSignInToken(User user) {
+		RegistrationConfirmation reg = membershipDao.getSignInTokenByUser(user);
+
+		if (reg != null) {
+			return reg.getConfirmationCode();
+		}
+
+		return "";
+	}
+	
     /**
      * @return the bannerDao
      */
@@ -137,7 +182,7 @@ public class BasicBannerService implements BannerService, Serializable {
     public void setCloudDao(CloudDao cloudDao) {
         this.cloudDao = cloudDao;
     }
-    
+
     public void setTempDataDao(TempDataDao tempDataDao) {
         this.tempDataDao = tempDataDao;
     }
@@ -145,5 +190,30 @@ public class BasicBannerService implements BannerService, Serializable {
     public TempDataDao getTempDataDao() {
         return tempDataDao;
     }
+
+	public MembershipDao getMembershipDao() {
+		return membershipDao;
+	}
+
+	public void setMembershipDao(MembershipDao membershipDao) {
+		this.membershipDao = membershipDao;
+	}
+
+	public String getUserFolder(String userId) {
+		if (userId == null || userId.isEmpty()) {
+			return null;
+		}
+		User u = userDao.getUser(Integer.valueOf(userId));
+
+		return u.getUserFolder();
+	}
+
+	public UserDao getUserDao() {
+		return userDao;
+	}
+
+	public void setUserDao(UserDao userDao) {
+		this.userDao = userDao;
+	}
 
 }

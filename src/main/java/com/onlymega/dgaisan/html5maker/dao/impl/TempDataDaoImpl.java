@@ -1,5 +1,6 @@
 package com.onlymega.dgaisan.html5maker.dao.impl;
 
+
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 
@@ -47,6 +48,24 @@ public class TempDataDaoImpl implements TempDataDao {
 		}
 		
 		return data;
+	}
+
+	public TempData getDataById(Long tempDataId) {
+		Session session = null;
+		TempData data = null;
+
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			data = (TempData) session.get(TempData.class, tempDataId);
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.flush();
+				session.close();
+			}
+		}
+
+		return data;
+		
 	}
 
 }

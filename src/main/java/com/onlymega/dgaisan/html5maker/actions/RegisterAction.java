@@ -1,15 +1,19 @@
 package com.onlymega.dgaisan.html5maker.actions;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.struts2.interceptor.ServletRequestAware;
+import org.apache.struts2.util.ServletContextAware;
 
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
@@ -35,18 +39,22 @@ import com.opensymphony.xwork2.ModelDriven;
  * @author Dmitri Gaisan
  *
  */
-public class RegisterAction extends ActionSupport implements ModelDriven<User>, ServletRequestAware {
+public class RegisterAction extends ActionSupport implements 
+		ModelDriven<User>, 
+		ServletRequestAware,
+		ServletContextAware {
 	private static final long serialVersionUID = 2837183738L;
 	private static final Logger logger = Logger.getLogger(RegisterAction.class.getName());
 
 	private UserDao userService;
 	private MembershipDao membershipService;
-
-	private User user = new User();
+	
 	private HttpServletRequest request;
+	private ServletContext servletContext;
 
 	private List<Membership> availableMemberships;
 
+	private User user = new User();
 	private String membership;
 	private String passRep;
 	private String registrationCode;
@@ -165,10 +173,19 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 			user.setActive(ActiveStatusEnum.INACTIVE.getValue());
 			user.setVerified(VerifiedStatusEnum.NOT_VERIFIED.getValue());
 			user.setMembershipType(getMembershipId(getMembership()));
+			String userFolder = KeyGenerator.generateKey(); 
+			user.setUserFolder(userFolder);
 
 			// save the user on DB
 			user.setUserId(userService.saveUser(user));
 
+			String file = servletContext.getRealPath("/") + KeyGenerator.generateKey();
+			
+			System.out.println("creating new user file: " + file); // XXX remove me
+			
+			// create user folder
+			FileUtils.forceMkdir(new File(file));
+			
 			// sending registration confirmation email
 			registrationCode = KeyGenerator.generateRegistrationConfirmationCode();
 			reg = new RegistrationConfirmation(registrationCode, 0, user, new Date());
@@ -207,7 +224,7 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 
 			return ERROR;
 		}
-
+		
 		return SUCCESS;
 	}
 
@@ -396,5 +413,10 @@ public class RegisterAction extends ActionSupport implements ModelDriven<User>, 
 		ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(remoteAddr, challenge, uresponse);
 
 		return !reCaptchaResponse.isValid();
+	}
+
+	public void setServletContext(ServletContext context) {
+		servletContext = context;
+		
 	}
 }

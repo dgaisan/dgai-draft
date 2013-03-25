@@ -40,6 +40,10 @@
         <property name="membershipType" type="java.lang.Integer">
             <column name="membership_type" length="10" />
         </property>
+
+        <property name="userFolder" type="string">
+            <column name="user_folder" length="50" />
+        </property>
         
     </class>
 </hibernate-mapping>

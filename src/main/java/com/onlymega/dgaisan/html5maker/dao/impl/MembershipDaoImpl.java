@@ -117,8 +117,27 @@ public class MembershipDaoImpl implements MembershipDao {
 
 	public RegistrationConfirmation getSignInTokenByUser(User user)
 			throws HibernateException {
-		// TODO What is this mean for??? Forgot :)
-		return null;
+		System.out.println("MembershipDaoImpl.getSignInTokenByUser()"); // XXX remove me
+		Session session = null;
+		RegistrationConfirmation reg = null;
+		String q = "from RegistrationConfirmation r " +
+				"where r.user.userId = ? " +
+				"and r.dataType = 1";
+
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			reg = (RegistrationConfirmation) session.createQuery(q)
+				.setInteger(0, user.getUserId()).uniqueResult();
+			if (reg == null) {
+				System.out.println("reg == null");
+			}
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.close();
+			}
+		}
+
+		return reg;
 	}
 
 }

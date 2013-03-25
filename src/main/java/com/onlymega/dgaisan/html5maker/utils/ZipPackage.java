@@ -34,8 +34,8 @@ public class ZipPackage {
 	private final String dataToken;
 	private String tempDirName;
 	//context.getRealPath("/") + CommonData.TEMP_FOLDER;
-	private String assetsDirName = CommonData.ASSETS_PREFIX + getDataToken();
-	private String zipFolderName = "html5maker" + getDataToken();
+	private String assetsDirName;
+	private String zipFolderName;
 
 	private String outputEmbedFileName;
 	private String outputBannerFileName;
@@ -56,6 +56,9 @@ public class ZipPackage {
 		this.tempDirName = tempDir;
 		this.dataToken = dataToken;
 		
+		zipFolderName = "html5maker" + getDataToken();
+		assetsDirName = CommonData.ASSETS_PREFIX + getDataToken();
+
 		html = 
 			data.getEmbedCode()
 			.replace("stringtoreplace", 

@@ -21,6 +21,7 @@ public class User implements Serializable {
 	private int active;
 	private int role;
 	private int membershipType;
+	private String userFolder;
 	
 	public User() {}
 	
@@ -103,6 +104,14 @@ public class User implements Serializable {
 
 	public int getMembershipType() {
 		return membershipType;
+	}
+
+	public String getUserFolder() {
+		return userFolder;
+	}
+
+	public void setUserFolder(String userFolder) {
+		this.userFolder = userFolder;
 	}
 
 	@Override

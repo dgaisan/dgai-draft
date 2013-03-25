@@ -18,5 +18,5 @@ public interface BannerDao {
      */
     void save(Banner b) throws HibernateException;
     
-    
+    int countBannersByUser(String userId) throws Exception;
 }
