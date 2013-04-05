@@ -4,16 +4,16 @@ package com.onlymega.dgaisan.html5maker.dao.impl;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 
-import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.dao.TempBannerDao;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.utils.HibernateUtil;
 
 
-public class TempDataDaoImpl implements TempDataDao {
+public class TempDataDaoImpl implements TempBannerDao {
 
-	public void saveData(TempData data) throws Exception {
+	public void saveTempBanner(TempBanner data) throws Exception {
 		Session session = null;
-			
+
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			session.getTransaction().begin();
@@ -30,14 +30,15 @@ public class TempDataDaoImpl implements TempDataDao {
 		}
 	}
 
-	public TempData getDataByToken(String token) throws Exception {
+	public TempBanner getTempBannerByToken(String token) throws Exception {
 		Session session = null;
-		TempData data = null;
-		String queryString = "from TempData d where d.dataToken = ?";
-		
+		TempBanner data = null;
+		String queryString = 
+			"from TempData d where d.dataToken = ?";
+
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			data = (TempData) session.createQuery(queryString)
+			data = (TempBanner) session.createQuery(queryString)
 										.setString(0, token)
 										.uniqueResult();
 		} finally {
@@ -46,17 +47,17 @@ public class TempDataDaoImpl implements TempDataDao {
 				session.close();
 			}
 		}
-		
+
 		return data;
 	}
 
-	public TempData getDataById(Long tempDataId) {
+	public TempBanner getTempBannerById(Long tempDataId) {
 		Session session = null;
-		TempData data = null;
+		TempBanner data = null;
 
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			data = (TempData) session.get(TempData.class, tempDataId);
+			data = (TempBanner) session.get(TempBanner.class, tempDataId);
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.flush();
@@ -65,7 +66,5 @@ public class TempDataDaoImpl implements TempDataDao {
 		}
 
 		return data;
-		
 	}
-
 }

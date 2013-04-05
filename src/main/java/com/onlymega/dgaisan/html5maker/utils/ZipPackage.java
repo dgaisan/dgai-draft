@@ -20,7 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 
 
 public class ZipPackage {
@@ -45,13 +45,13 @@ public class ZipPackage {
 	private File outputBannerFile;
 	private File outputAssetsDir;
 
-	private TempData data;
+	private TempBanner data;
 	private List<String> imageNames;
 
 	private ZipOutputStream zop;
 	private String outputZipName = "";
 
-	public ZipPackage(TempData data, String tempDir, String dataToken) throws Exception {
+	public ZipPackage(TempBanner data, String tempDir, String dataToken) throws Exception {
 		this.data = data;
 		this.tempDirName = tempDir;
 		this.dataToken = dataToken;
@@ -60,17 +60,17 @@ public class ZipPackage {
 		assetsDirName = CommonData.ASSETS_PREFIX + getDataToken();
 
 		html = 
-			data.getEmbedCode()
+			data.getHtmlCode()
 			.replace("stringtoreplace", 
 					CommonData.ASSETS_PREFIX + getDataToken());
-		
+
 		outputDirName = tempDirName + File.separator + zipFolderName;
 		outputZipName = outputDirName + ".zip";
-		
+
 		System.out.println("outputDirName: " + outputDirName);
-		
+
 		File outputDir = new File(outputDirName);
-		
+
 		if (outputDir.exists()) {
 			outputDir.delete();
 		}
@@ -185,7 +185,7 @@ public class ZipPackage {
 	private List<String> getImageNamesFromJson() throws JSONException {
 		List<String> ret = new ArrayList<String>();
 		
-		JSONObject json = new JSONObject(data.getConfig());
+		JSONObject json = new JSONObject(data.getBannerConfig());
 		JSONArray items = (JSONArray) json.get("items");
 		
 		for (int index = 0; index < items.length(); index++) {

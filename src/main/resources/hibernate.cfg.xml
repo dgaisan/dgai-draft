@@ -17,8 +17,7 @@
 		<property name="hibernate.connection.password"></property>
         <property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/html5maker</property>
         <property name="hibernate.connection.username">root</property>
-    	  
-    	  
+
         <!-- Use the C3P0 connection pool. -->
         <property name="connection_provider_class">
     		org.hibernate.connection.C3P0ConnectionProvider
@@ -26,7 +25,7 @@
         <property name="c3p0.min_size">3</property>
         <property name="c3p0.max_size">5</property>
         <property name="c3p0.timeout">1800</property>
-        
+
         <!-- Print SQL to stdout. -->
         <property name="show_sql">true</property>
         <property name="format_sql">true</property>
@@ -36,7 +35,8 @@
         </property>
 
         <mapping resource="com/onlymega/dgaisan/html5maker/model/User.hbm.xml"></mapping>
-        <mapping resource="com/onlymega/dgaisan/html5maker/model/TempData.hbm.xml" />
+        <mapping resource="com/onlymega/dgaisan/html5maker/model/TempBanner.hbm.xml" />
+        <mapping resource="com/onlymega/dgaisan/html5maker/model/Banner.hbm.xml" />
         <mapping resource="com/onlymega/dgaisan/html5maker/model/RegistrationConfirmation.hbm.xml" />
         <mapping resource="com/onlymega/dgaisan/html5maker/model/RestoredPassword.hbm.xml" />
     </session-factory>

@@ -16,8 +16,7 @@
 	<s:actionerror/>
 
 	<%!
-	String getContext(javax.servlet.http.HttpServletRequest request) {
-		System.out.println( "In getContext" );
+	String getContext(javax.servlet.http.HttpServletRequest request) {		
 		return 
 			request.getScheme() + "://" 
 			+ request.getServerName()  
@@ -27,11 +26,14 @@
 	%>
 
 	
-	<a href="<%=getContext(request)%>/<s:property value='zip'/>"> <s:property value="text('com.onlymega.html5maker.download.zip')" default="Download Zip" /></a>
+	<a href="<%=getContext(request)%>/<s:property value='zip'/>"> 
+		<s:property value="text('com.onlymega.html5maker.download.zip')" default="Download Zip" />
+	</a>
 
+	<a href="saveBanner">
+		<s:property value="text('com.onlymega.html5maker.download.savedesign')" default="Save design" />
+	</a>
 
-
-	<a href="saveBanner"><s:property value="text('com.onlymega.html5maker.download.savedesign')" default="Save design" /></a>
 
 </body>
 </html>

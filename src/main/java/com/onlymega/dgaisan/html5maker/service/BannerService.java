@@ -2,7 +2,7 @@ package com.onlymega.dgaisan.html5maker.service;
 
 import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.CloudData;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.model.User;
 
 import java.io.IOException;
@@ -12,12 +12,12 @@ public interface BannerService {
 	/**
 	 * Saves temporary banner (banner files including zip file).
 	 * 
-	 * @param data {@link TempData}
+	 * @param data {@link TempBanner}
 	 * @param tempDir temporary directory
 	 * 
 	 * @return {@link String generated data token}
 	 */
-	String saveTempData(final TempData data, String tempDir) throws Exception;
+	String saveTempData(final TempBanner data, String tempDir) throws Exception;
 	
 	/**
 	 * Saves an image.
@@ -44,7 +44,7 @@ public interface BannerService {
 	 * @param tempDataId
 	 * @return
 	 */
-	public TempData getTempData(String tempDataId);
+	public TempBanner getTempData(String tempDataId);
 	
 	/**
 	 * A service call to check whether {@link User}'s account type is PREMIUM or not.

@@ -187,6 +187,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 
 			return ERROR;
 		}
+		System.out.println("Returing SUCCESS!"); // XXX remove me
         return SUCCESS;
     }
 

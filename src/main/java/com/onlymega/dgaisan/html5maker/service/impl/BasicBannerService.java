@@ -11,13 +11,13 @@ import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.dao.BannerDao;
 import com.onlymega.dgaisan.html5maker.dao.CloudDao;
 import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
-import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
+import com.onlymega.dgaisan.html5maker.dao.TempBannerDao;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.CloudData;
 import com.onlymega.dgaisan.html5maker.model.Membership;
 import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.service.exception.BannerServiceException;
@@ -42,16 +42,16 @@ public class BasicBannerService implements BannerService, Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger log = Logger.getLogger(BasicBannerService.class.getName());
    
-    private TempDataDao tempDataDao;
+    private TempBannerDao tempDataDao;
     private BannerDao bannerDao;
     private CloudDao cloudDao;
     private MembershipDao membershipDao;
     private UserDao userDao;
 
     @Transactional
-    public String saveTempData(TempData data, String tempDir)throws Exception {
+    public String saveTempData(TempBanner data, String tempDir)throws Exception {
     	System.out.println("BasicBannerService.saveTempData()");
-        getTempDataDao().saveData(data);
+        getTempDataDao().saveTempBanner(data);
         new ZipPackage(data, tempDir, data.getDataToken()).create();
         
         return data.getDataToken();
@@ -118,8 +118,8 @@ public class BasicBannerService implements BannerService, Serializable {
         return b.getId();
     }
 
-    public TempData getTempData(String tempDataId) {
-		return tempDataDao.getDataById(Long.valueOf(tempDataId));
+    public TempBanner getTempData(String tempDataId) {
+		return tempDataDao.getTempBannerById(Long.valueOf(tempDataId));
 	}
 
 	public boolean isPremiumAccount(User user) throws Exception {
@@ -183,11 +183,11 @@ public class BasicBannerService implements BannerService, Serializable {
         this.cloudDao = cloudDao;
     }
 
-    public void setTempDataDao(TempDataDao tempDataDao) {
+    public void setTempDataDao(TempBannerDao tempDataDao) {
         this.tempDataDao = tempDataDao;
     }
 
-    public TempDataDao getTempDataDao() {
+    public TempBannerDao getTempDataDao() {
         return tempDataDao;
     }
 

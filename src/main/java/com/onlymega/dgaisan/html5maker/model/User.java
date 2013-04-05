@@ -41,6 +41,9 @@ public class User implements Serializable {
 		this.role = user.getRole();
 		this.verified = user.getVerified();
 		this.active = user.getActive();
+		this.userName = user.getUserName();
+		this.userFolder = user.getUserFolder();
+		
 	}
 	
 	public int getUserId() {

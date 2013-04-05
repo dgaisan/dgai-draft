@@ -340,10 +340,14 @@ public class RegisterAction extends ActionSupport implements
 		if (membershipName == null || membershipName.equals("")) {
 			return 0;
 		}
-		for (Membership m : availableMemberships) {
-			if (m.getName().equals(membershipName)) {
-				return m.getId();
+		try {
+			for (Membership m : membershipService.getAvailableMemberships()) {
+				if (m.getName().equals(membershipName)) {
+					return m.getId();
+				}
 			}
+		} catch (Exception e) {
+			logger.error("Unable to retrieve membership types");
 		}
 
 		return 0;

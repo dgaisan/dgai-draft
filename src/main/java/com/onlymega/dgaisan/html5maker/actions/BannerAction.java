@@ -12,7 +12,7 @@ import org.apache.struts2.interceptor.SessionAware;
 import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.CloudData;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.opensymphony.xwork2.ActionSupport;
@@ -114,10 +114,10 @@ public class BannerAction extends ActionSupport implements SessionAware {
 
     private String handleFreeAccount(User user) throws Exception {
     	System.out.println("BannerAction.handleFreeAccount()");
-    	List<TempData> bannersFromSession = getBannersFromSession();
+    	List<TempBanner> bannersFromSession = getBannersFromSession();
 
     	if (bannersFromSession != null) {
-    		TempData onlyBannerForSafe = bannersFromSession.get(0);
+    		TempBanner onlyBannerForSafe = bannersFromSession.get(0);
 
     		if (bannerService.countBanners(user) == 0) {
     			// if user doesn't have banners then let
@@ -147,7 +147,6 @@ public class BannerAction extends ActionSupport implements SessionAware {
     		b.setName(getToken());
     		b.setUser(user);
     		
-    		b.setFolder("");
     		b.setBannerFile("");
     		b.setZipFile(getToken() + ".zip");
     		
@@ -164,7 +163,7 @@ public class BannerAction extends ActionSupport implements SessionAware {
     }
     
     private String handlePremiumAccount(User user) throws Exception {
-    	List<TempData> bannersFromSession = getBannersFromSession(); 
+    	List<TempBanner> bannersFromSession = getBannersFromSession(); 
     	
     	if (bannersFromSession != null) {
     		// TODO for bannersFromSession...
@@ -181,13 +180,13 @@ public class BannerAction extends ActionSupport implements SessionAware {
     }
     
     @SuppressWarnings("unchecked")
-	private List<TempData> getBannersFromSession() {
+	private List<TempBanner> getBannersFromSession() {
     	Collection<String> dataIds = 
      		(Collection<String>) session.get(CommonData.DATA_ID);
-    	List<TempData> ret = null; 
+    	List<TempBanner> ret = null; 
     	
     	if (dataIds != null && !dataIds.isEmpty()) {
-    		ret = new ArrayList<TempData>();
+    		ret = new ArrayList<TempBanner>();
      		for (String tempDataId : dataIds) {
      			ret.add(bannerService.getTempData(tempDataId));
      		}

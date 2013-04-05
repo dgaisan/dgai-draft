@@ -9,14 +9,18 @@ import java.util.Date;
  */
 public class Banner {
     private int id;
-    private int active;
     private String name;
-    private String zipFile;
-    private String folder;
+    private String bannerConfig;
     private String bannerFile;
+    private String zipFile;
+    private String imagesArray;
+    private int bannerWidth;
+    private int bannerHeight;
+    private int bannerSize;
     private Date dateCreated;
     private User user;
-
+    private int active;
+    
     /**
      * @return the id
      */
@@ -57,20 +61,6 @@ public class Banner {
      */
     public void setZipFile(String zipFile) {
         this.zipFile = zipFile;
-    }
-
-    /**
-     * @return the folder
-     */
-    public String getFolder() {
-        return folder;
-    }
-
-    /**
-     * @param folder the folder to set
-     */
-    public void setFolder(String folder) {
-        this.folder = folder;
     }
 
     /**
@@ -128,4 +118,44 @@ public class Banner {
     public void setUser(User user) {
         this.user = user;
     }
+
+	public String getBannerConfig() {
+		return bannerConfig;
+	}
+
+	public void setBannerConfig(String bannerConfig) {
+		this.bannerConfig = bannerConfig;
+	}
+
+	public int getBannerWidth() {
+		return bannerWidth;
+	}
+
+	public void setBannerWidth(int bannerWidth) {
+		this.bannerWidth = bannerWidth;
+	}
+
+	public int getBannerHeight() {
+		return bannerHeight;
+	}
+
+	public void setBannerHeight(int bannerHeight) {
+		this.bannerHeight = bannerHeight;
+	}
+
+	public int getBannerSize() {
+		return bannerSize;
+	}
+
+	public void setBannerSize(int bannerSize) {
+		this.bannerSize = bannerSize;
+	}
+
+	public String getImagesArray() {
+		return imagesArray;
+	}
+
+	public void setImagesArray(String imagesArray) {
+		this.imagesArray = imagesArray;
+	}
 }

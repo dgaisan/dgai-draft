@@ -3,34 +3,26 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="com.onlymega.dgaisan.html5maker.model.Banner" table="banners">
-		<id name="id" type="java.lang.Integer">
-			<column name="id" />
+	<class name="com.onlymega.dgaisan.html5maker.model.TempBanner" table="temp_banners">
+		<id name="bannerId" type="java.lang.Integer">
+			<column name="banner_id" />
 			<generator class="increment" />
 		</id>
 
-		<property name="name" type="string">
-			<column name="name" />
+		<property name="dataToken" type="string">
+			<column name="data_token" />
 		</property>
 
 		<property name="bannerConfig" type="string">
 			<column name="banner_config" />
 		</property>
 
-		<property name="active" type="java.lang.Integer">
-			<column name="active" length="10" />
+		<property name="htmlCode" type="string">
+			<column name="html_code" />
 		</property>
-
+		
 		<property name="imagesArray" type="string">
 			<column name="images_array" />
-		</property>
-
-		<property name="bannerFile" type="string">
-			<column name="banner_file" />
-		</property>
-
-		<property name="zipFile" type="string">
-			<column name="zip_file" />
 		</property>
 
 		<property name="bannerWidth" type="java.lang.Integer">
@@ -45,12 +37,9 @@
 			<column name="banner_size" />
 		</property>
 
-		<many-to-one name="user" class="com.onlymega.dgaisan.html5maker.model.User">
-			<column name="userId" not-null="true" />
-		</many-to-one>
-
 		<property name="dateCreated" type="java.util.Date">
-			<column name="date_created" />
-		</property>
+            <column name="date_created" />
+        </property>
+
 	</class>
 </hibernate-mapping>

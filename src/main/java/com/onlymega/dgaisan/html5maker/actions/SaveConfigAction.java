@@ -9,17 +9,15 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.struts2.interceptor.ServletResponseAware;
 import org.apache.struts2.interceptor.SessionAware;
 import org.apache.struts2.util.ServletContextAware;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
-import com.onlymega.dgaisan.html5maker.dao.MembershipDao;
-import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
+import com.onlymega.dgaisan.html5maker.dao.TempBannerDao;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 
@@ -61,29 +59,31 @@ public class SaveConfigAction extends ActionSupport
 		//TODO validate incoming data (image)
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String execute() throws Exception {
 		System.out.println("SaveConfigAction.execute()"); // XXX remove me
-		TempData data = null;
+		TempBanner tempBanner = null;
 		String dataToken = KeyGenerator.generateKey();
 		String ret = "";
 		String tempPath = context.getRealPath("/") + CommonData.TEMP_FOLDER;
-		Collection<String> dataIds = null;
+		Collection<String> tempBannerIds = null;
 
 		System.out.println("temppath = " + tempPath);
-		
-		try {
-			data = new TempData(dataToken, json, html, new Date());
-			getBannerService().saveTempData(data, tempPath);
 
-			
-			dataIds = (Collection<String>) session.get(CommonData.DATA_ID);
-			if (dataIds == null || dataIds.isEmpty()) {
-				dataIds = new ArrayList<String>();
+		try {
+			tempBanner = new TempBanner(dataToken, getJson(), getHtml(), 
+					getImages_array(), Integer.valueOf(getBn_width()), 
+					Integer.valueOf(getBn_height()), 0, new Date());
+			getBannerService().saveTempData(tempBanner, tempPath);
+
+			tempBannerIds = (Collection<String>) session.get(CommonData.DATA_ID);
+			if (tempBannerIds == null || tempBannerIds.isEmpty()) {
+				tempBannerIds = new ArrayList<String>();
 			}
 			// TODO check if this works...
-			dataIds.add(Integer.toString(data.getDataId()));
-			session.put(CommonData.DATA_ID, dataIds);
+			tempBannerIds.add(Integer.toString(tempBanner.getBannerId()));
+			session.put(CommonData.DATA_ID, tempBannerIds);
 
 			ret = dataToken;
 		} catch (Exception e) {

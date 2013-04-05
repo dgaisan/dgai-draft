@@ -4,8 +4,8 @@ package com.onlymega.dgaisan.html5maker.actions;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.dao.TempBannerDao;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.utils.ZipPackage;
 import com.opensymphony.xwork2.ActionSupport;
 
@@ -20,7 +20,7 @@ public class PublicDownloadAction extends ActionSupport {
 	private static final Collection<String> invalidTokens;
 
 	private String dataToken;
-	private TempDataDao tempDataDao;
+	private TempBannerDao tempDataDao;
 
 	static {
 		invalidTokens = new ArrayList<String>();
@@ -44,7 +44,7 @@ public class PublicDownloadAction extends ActionSupport {
 		System.out.println("PublicDownloadAction.execute()"); // XXX remove me
 
 		try {
-			TempData data = getTempDataDao().getDataByToken(getDataToken());
+			TempBanner data = getTempDataDao().getTempBannerByToken(getDataToken());
 			if (data == null) {
 				return ERROR;
 			}
@@ -71,11 +71,11 @@ public class PublicDownloadAction extends ActionSupport {
 		return dataToken;
 	}
 
-	public void setTempDataDao(TempDataDao tempDataDao) {
+	public void setTempDataDao(TempBannerDao tempDataDao) {
 		this.tempDataDao = tempDataDao;
 	}
 
-	public TempDataDao getTempDataDao() {
+	public TempBannerDao getTempDataDao() {
 		return tempDataDao;
 	}
 }

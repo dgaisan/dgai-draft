@@ -11,8 +11,8 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-import com.onlymega.dgaisan.html5maker.dao.TempDataDao;
-import com.onlymega.dgaisan.html5maker.model.TempData;
+import com.onlymega.dgaisan.html5maker.dao.TempBannerDao;
+import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.opensymphony.xwork2.Action;
 import com.opensymphony.xwork2.interceptor.annotations.Before;
 
@@ -22,7 +22,7 @@ public class DownloadActionTest extends TestCase {
 	private PublicDownloadAction action;
 	
 	@Mock
-	private TempDataDao tempDataService;
+	private TempBannerDao tempDataService;
 	
 	@Captor
 	private ArgumentCaptor<String> dataTokenCaptor;
