@@ -47,6 +47,10 @@ public class TokenUtil {
 	}
 	
 	public static String extractUserId(String token) {
+		if (token == null || token.isEmpty()) {
+			return "";
+		}
+
 		String decoded = new String(base64.decode(token.getBytes()));
 		int userIdOffset = Integer.valueOf(decoded.substring(0, 2)) + 2;
 		String userId = decoded.substring(userIdOffset + 2);
@@ -55,6 +59,10 @@ public class TokenUtil {
 	}
 	
 	public static String extractBannerId(String token) {
+		if (token == null || token.isEmpty()) {
+			return "";
+		}
+
 		String decoded = new String(base64.decode(token.getBytes()));
 		int bannerIdOffser = Integer.valueOf(decoded.substring(0, 2));
 		String bannerId = decoded.substring(2, bannerIdOffser + 2);

@@ -8,12 +8,10 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
 import org.apache.struts2.util.ServletContextAware;
-import org.springframework.util.StringUtils;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
@@ -48,64 +46,81 @@ public class SaveImageAction extends ActionSupport
 	
 	@Override
 	public String execute() throws Exception {
+		System.out.println("SaveImageAction.execute()"); 
+
 		ServletInputStream stream = null;
-		File dir = null;
-		File file = null;
-		FileOutputStream fios = null;
-		String newFileName = "";
-		String fullPath = "";
-		int bytesRead = 0;
-		byte[] buffer = null;
+		String ret = "";
 
 		try {
 			int tempFileLen = 0;
+			int bytesRead = 0;
+			String folderToSave = getSaveFolder();
+			System.out.println("folderToSave: " + folderToSave); // XXX remove me!
+			String newFileName = KeyGenerator.generateNameHash() + ".png";
+			File file = new File(folderToSave, newFileName);
 
-			stream = request.getInputStream();
-			newFileName = KeyGenerator.generateNameHash() + ".png";
-
-			if (getToken() != null || !"".equals(getToken())) {
-				String userId = TokenUtil.extractUserId(getToken());
-				String folderName = getBannerService().getUserFolder(userId);
-
-				fullPath = servletContext.getRealPath("/") + folderName + File.separator + newFileName;
-			} else {
-				fullPath = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER + File.separator + newFileName;
-			}
-			String dirFileName = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
-			
-			dir = new File(dirFileName);
-			file = new File(dirFileName, newFileName);
-			System.out.println("fullPath: " + fullPath);
-
-			if (!dir.exists()) {
-				dir.mkdir();
-			}
 			if (!file.exists()) {
 				file.createNewFile();
+			} else {
+				// an unlikely scenario
+				throw new Exception("File with the save name already exists!");
 			}
-			
-			fios = new FileOutputStream(file);
-			buffer = new byte[ CommonData.BUFFER_SIZE];
-		
+
+			FileOutputStream fios = new FileOutputStream(file);
+			byte[] buffer = new byte[ CommonData.BUFFER_SIZE];
+
+			stream = request.getInputStream();
+
 			// TODO validate request!
-			
+
 			while ((bytesRead = stream.read(buffer)) > 0) {
 				fios.write(buffer, 0, bytesRead);
 				tempFileLen += bytesRead;
 			}
 			fios.flush();
 			fios.close();
+			ret = newFileName;
 		} catch (Exception ex) {
+			System.out.println("Exception in SaveImage!"); // XXX remove me!
+			System.out.println(ex.toString());
+			System.out.println(ex.getMessage());
+			System.out.print(ex.getStackTrace()[ 0].getMethodName() + "  ");
+			System.out.println(ex.getStackTrace()[ 0].getLineNumber());
+
 			logger.error(ex.getMessage(), ex);
+			ret = "ERROR";
 		} finally {
 			try {
-				response.getWriter().print(newFileName);
+				System.out.println("ret = " + ret); // XXX remove me
+				response.getWriter().print(ret);
 				response.getWriter().close();
+				stream.close();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
+
 		return null;
+	}
+	
+	private String getSaveFolder() throws Exception {
+		System.out.println("SaveImageAction.getSaveFolder()"); // XXX remove me
+		String saveFolder = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
+
+		if (getToken() != null && !"".equals(getToken())) {
+			String userId = TokenUtil.extractUserId(getToken());
+			String userFolderName = getBannerService().getUserFolder(userId);
+
+			if (userFolderName != null) {
+				//fullPath = servletContext.getRealPath("/") + folderName + File.separator + newFileName;
+				saveFolder = servletContext.getRealPath("/") + CommonData.USER_FILE_FOLDER
+					+ File.separator + userFolderName;
+			} else {
+				throw new Exception("Invalid token was passed!");
+			}
+		}
+
+		return saveFolder;
 	}
 	
 	public void setServletRequest(HttpServletRequest request) {

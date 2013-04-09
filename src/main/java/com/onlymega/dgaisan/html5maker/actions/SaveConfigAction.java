@@ -87,7 +87,9 @@ public class SaveConfigAction extends ActionSupport
 
 			ret = dataToken;
 		} catch (Exception e) {
-			e.printStackTrace(); // XXX remove me
+			System.out.println("Exception in SaveConfig"); // XXX remove me
+			System.out.println(e.getMessage());
+
 			ret = ERROR;
 			logger.error(e.getMessage(), e);
 		} finally {

@@ -72,8 +72,8 @@
                 <div class="article">
                     <div class="article_btn">
                         <p>
-                            <a href="http://html5maker.com/app" class="package article_btn_start"
-                            title="Create HTML5 Banner or Professional Slideshow and Presentation.">Create HTML5 Banner or Professional Slideshow and Presentation.</a>
+                            <a href="<s:url value='/design/create.html'/>" class="package article_btn_start"
+                            title="Create HTML5 Banner or Professional Slideshow and Presentation">Create HTML5 Banner or Professional Slideshow and Presentation</a>
                         </p>
                     </div>
                     <div class="article_title">

@@ -22,7 +22,12 @@ import org.json.JSONObject;
 import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.model.TempBanner;
 
-
+/**
+ * Create physical ZIP archive with html banner, and embed code
+ * 
+ * @author Dmitri Gaisan
+ *
+ */
 public class ZipPackage {
 	public static final String HTML_TEMPLATE = 
 		"<!DOCTYPE html><html lang=\"en\"><head> <meta charset=\"utf-8\"> " +

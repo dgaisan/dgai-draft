@@ -15,6 +15,7 @@ import com.onlymega.dgaisan.html5maker.model.CloudData;
 import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
+import com.onlymega.dgaisan.html5maker.utils.TokenUtil;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
@@ -24,13 +25,13 @@ import com.opensymphony.xwork2.ActionSupport;
  *
  */
 public class BannerAction extends ActionSupport implements SessionAware {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3819374929293L;
     private static final Logger logger = Logger.getLogger(BannerAction.class.getName());
 
     private Map<String, Object> session;
 
     private String token;
-    
+   
     /**
      * Used when editing a banner
      */
@@ -52,15 +53,16 @@ public class BannerAction extends ActionSupport implements SessionAware {
         try {
             currentUser = (User) session.get(CommonData.USER_OBJECT);
 
-            String t = 
-            	currentUser == null ? "0" 
-            			: bannerService.getSignInToken(currentUser);
+            if (currentUser == null) {
+            	setToken("");
+            } else {
+            	setToken(TokenUtil.getnerateToken("", String.valueOf(currentUser.getUserId())));
+            }
 
-            System.out.println("user token = " + t); // XXX remove me
-            
-            setBannerId("0");
-            setToken(t);
+            System.out.println("user token = " + getToken()); // XXX remove me
         } catch (Exception e) {
+        	System.out.println("Exception " + e.getMessage()); // XXX remove me
+
             logger.error(e.getMessage(), e);
             return ERROR;
         }
@@ -84,14 +86,14 @@ public class BannerAction extends ActionSupport implements SessionAware {
      * @return action result
      */
     public String saveBannerAction() {
-        System.out.println("saveBannerAction()");
-        System.out.println("bannerId = " + bannerId);
-        
+        System.out.println("saveBannerAction()"); // XXX remove me
+        System.out.println("token = " + getToken());
+
         User currentUser = null;
-        
+
         try {
             currentUser = (User) session.get(CommonData.USER_OBJECT);
-            
+
             if (currentUser == null) {
              	logger.info("Attempt to save banner when not logged in");
                 return ERROR;
@@ -102,14 +104,14 @@ public class BannerAction extends ActionSupport implements SessionAware {
             }
 
             return handleFreeAccount(currentUser);
-
         } catch (Exception e) {
+        	System.out.println("Exception in Save BannerAction!!!"); // XXX remove me
+        	System.out.println(e.getMessage());
+
             logger.error(e.getMessage(), e);
+
             return ERROR;
         }
-        
-    	//logger.error(String.
-    		//	format("User [%s] is calling banner save action w/o proper params", currentUser.getUserId()));
     }
 
     private String handleFreeAccount(User user) throws Exception {
@@ -157,7 +159,6 @@ public class BannerAction extends ActionSupport implements SessionAware {
     		
     		// getBannerService().saveBanner(b, c);
     	}
-
     	
     	return ERROR;
     }
@@ -175,7 +176,7 @@ public class BannerAction extends ActionSupport implements SessionAware {
     	}
 
        	// TODO ...
-       	
+
        	return ERROR;
     }
     
@@ -194,10 +195,10 @@ public class BannerAction extends ActionSupport implements SessionAware {
      		dataIds.clear();
      		session.remove(CommonData.DATA_ID);
     	}
-    	
+
         return ret;	
     }
-    
+
     public String getToken() {
         return token;
     }

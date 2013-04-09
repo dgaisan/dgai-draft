@@ -26,6 +26,7 @@ import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.model.VerifiedStatusEnum;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.MD5Util;
+import com.onlymega.dgaisan.html5maker.utils.TokenUtil;
 import com.onlymega.dgaisan.html5maker.utils.ValidationUtil;
 import com.opensymphony.xwork2.ActionSupport;
 
@@ -100,8 +101,8 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     @SuppressWarnings("unchecked")
 	public String execute() throws Exception {
     	Integer loginAttempts = 0;
-    	String userToken = "";
-    	RegistrationConfirmation userWithToken = null;
+//    	String userToken = "";
+//    	RegistrationConfirmation userWithToken = null;
 
     	System.out.println("LoginAction.execute()"); // XXX remov eme
     	
@@ -160,7 +161,8 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 	    	}
 
 	    	// at this point user is logged in
-	    	// TODO 
+	    	// TODO look at this functionality
+	    	/*
 	    	userWithToken = membershipDao.getSignInTokenByUser(user);
 	    	if (userWithToken == null) {
 		    	// add this user to the logged in user list
@@ -170,7 +172,7 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 		    	membershipDao.saveRegistrationConfirmationCode(userWithToken);	    		
 		    	session.put(CommonData.USER_ONLINE_TOKEN, userToken);
 	    	}
-
+	    	 */
 	    	Collection<String> dataIds = 
 	    		(Collection<String>) session.get(CommonData.DATA_ID);
 
@@ -237,7 +239,9 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     			System.out.println("user == null"); // XXX remove me!
     			return ERROR;
     		}
-    		
+
+    		setToken(TokenUtil.getnerateToken("", String.valueOf(user.getUserId())));
+
     		// TODO Update this logic to call bannerService.isPremium()...
     		availableMemberships = membershipDao.getAvailableMemberships();
 
@@ -246,8 +250,8 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
     				return "FREE";
     			}
     		}
-    		return "PREMIUM";
 
+    		return "PREMIUM";
 		} catch (Exception e) {
 			e.printStackTrace(); // XXX remove me
 			return ERROR;

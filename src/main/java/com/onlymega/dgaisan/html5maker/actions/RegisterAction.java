@@ -165,27 +165,32 @@ public class RegisterAction extends ActionSupport implements
 
 			String originalPass = user.getPass();
 			RegistrationConfirmation reg = null;
-
-			// save user
+			String userFolderName = KeyGenerator.generateKey();
+			String baseFolder = servletContext.getRealPath("/") + CommonData.USER_FILE_FOLDER;
+			File userFolderFile = new File(baseFolder, userFolderName);
+			
+			// populate User for saving on DB
 			user.setRole(1);
 			user.setDateCreated(new Date());
 			user.setPass(getEncriptedPassword(user.getPass()));
 			user.setActive(ActiveStatusEnum.INACTIVE.getValue());
 			user.setVerified(VerifiedStatusEnum.NOT_VERIFIED.getValue());
-			user.setMembershipType(getMembershipId(getMembership()));
-			String userFolder = KeyGenerator.generateKey(); 
-			user.setUserFolder(userFolder);
+			user.setMembershipType(getMembershipId(getMembership())); 
+			user.setUserFolder(userFolderName);
+
+			// create user folder on the FS
+			if (!userFolderFile.exists()) {
+				userFolderFile.createNewFile();
+				//FileUtils.forceMkdir(new File(file));
+			} else {
+				// an unlikely scenario
+				logger.error("Duplicate User Folder Name!!! " + user.getLogin());
+				throw new Exception("File with the save name already exists!");
+			}
 
 			// save the user on DB
 			user.setUserId(userService.saveUser(user));
 
-			String file = servletContext.getRealPath("/") + KeyGenerator.generateKey();
-			
-			System.out.println("creating new user file: " + file); // XXX remove me
-			
-			// create user folder
-			FileUtils.forceMkdir(new File(file));
-			
 			// sending registration confirmation email
 			registrationCode = KeyGenerator.generateRegistrationConfirmationCode();
 			reg = new RegistrationConfirmation(registrationCode, 0, user, new Date());

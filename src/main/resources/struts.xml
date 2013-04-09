@@ -39,21 +39,21 @@
 				<interceptor-ref name="debugging" />
 			</interceptor-stack>
 		</interceptors>
-	
+
 		<global-results>
 			 <result name="login_result">/jsp/login.jsp</result>
 		</global-results>
-		
+
 		<global-exception-mappings>
 			<exception-mapping result="error" exception="*">
 				/error.jsp
 			</exception-mapping>
 		</global-exception-mappings>
-		
+
 		<action name="signin" class="com.onlymega.dgaisan.html5maker.IndexAction">
 			<result>/jsp/login.jsp</result>
 		</action>
-                
+
 		<!-- keeping index.html for backward compatability -->
 		<action name="index" class="com.onlymega.dgaisan.html5maker.IndexAction">
 			<result>/index.jsp</result>

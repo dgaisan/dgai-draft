@@ -60,6 +60,7 @@ public class PublicDownloadAction extends ActionSupport {
 	}
 
 	public String getZip() {
+		// TODO will need to generate ZIP file here, instead of SaveConfig action
 		return ZipPackage.getZipName(getDataToken());
 	}
 
