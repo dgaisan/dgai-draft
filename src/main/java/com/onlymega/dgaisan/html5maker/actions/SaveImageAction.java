@@ -2,6 +2,7 @@ package com.onlymega.dgaisan.html5maker.actions;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
@@ -11,9 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
+import org.apache.struts2.interceptor.SessionAware;
 import org.apache.struts2.util.ServletContextAware;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
+import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.TokenUtil;
@@ -46,39 +49,18 @@ public class SaveImageAction extends ActionSupport
 	
 	@Override
 	public String execute() throws Exception {
-		System.out.println("SaveImageAction.execute()"); 
+		System.out.println("SaveImageAction.execute()"); // XXX remove me!
 
 		ServletInputStream stream = null;
 		String ret = "";
 
 		try {
-			int tempFileLen = 0;
-			int bytesRead = 0;
 			String folderToSave = getSaveFolder();
 			System.out.println("folderToSave: " + folderToSave); // XXX remove me!
 			String newFileName = KeyGenerator.generateNameHash() + ".png";
-			File file = new File(folderToSave, newFileName);
-
-			if (!file.exists()) {
-				file.createNewFile();
-			} else {
-				// an unlikely scenario
-				throw new Exception("File with the save name already exists!");
-			}
-
-			FileOutputStream fios = new FileOutputStream(file);
-			byte[] buffer = new byte[ CommonData.BUFFER_SIZE];
 
 			stream = request.getInputStream();
-
-			// TODO validate request!
-
-			while ((bytesRead = stream.read(buffer)) > 0) {
-				fios.write(buffer, 0, bytesRead);
-				tempFileLen += bytesRead;
-			}
-			fios.flush();
-			fios.close();
+			getBannerService().saveImage(stream, folderToSave, newFileName);
 			ret = newFileName;
 		} catch (Exception ex) {
 			System.out.println("Exception in SaveImage!"); // XXX remove me!
@@ -87,8 +69,8 @@ public class SaveImageAction extends ActionSupport
 			System.out.print(ex.getStackTrace()[ 0].getMethodName() + "  ");
 			System.out.println(ex.getStackTrace()[ 0].getLineNumber());
 
-			logger.error(ex.getMessage(), ex);
 			ret = "ERROR";
+			logger.error(ex.getMessage(), ex);
 		} finally {
 			try {
 				System.out.println("ret = " + ret); // XXX remove me
@@ -112,7 +94,6 @@ public class SaveImageAction extends ActionSupport
 			String userFolderName = getBannerService().getUserFolder(userId);
 
 			if (userFolderName != null) {
-				//fullPath = servletContext.getRealPath("/") + folderName + File.separator + newFileName;
 				saveFolder = servletContext.getRealPath("/") + CommonData.USER_FILE_FOLDER
 					+ File.separator + userFolderName;
 			} else {
@@ -152,4 +133,5 @@ public class SaveImageAction extends ActionSupport
 	public void setBannerService(BannerService bannerService) {
 		this.bannerService = bannerService;
 	}
+
 }

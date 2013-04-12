@@ -46,7 +46,7 @@
                             </div>
                             <div class="menu">
                             	<ul>
-                                	<li><a href="#" title="">Create HTML5 Banner</a></li>
+                                	<li><a href="<s:url value='/design/create.html'/>" title="">Create HTML5 Banner</a></li>
                                 	<li><a href="#" title="">FAQs</a></li>
                                 	<li><a href="#" title="">Contact</a></li>
                                 </ul>

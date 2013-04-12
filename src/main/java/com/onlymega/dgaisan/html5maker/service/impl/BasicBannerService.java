@@ -27,6 +27,8 @@ import com.onlymega.dgaisan.html5maker.utils.ZipPackage;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletInputStream;
+
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,48 +59,30 @@ public class BasicBannerService implements BannerService, Serializable {
         return data.getDataToken();
     }
 
-    public String saveImage(InputStream stream) throws IOException {
-        File dir = null;
-        File file = null;
-        FileOutputStream fios = null;
-        String newFileName = "";
-        String fullPath = "";
-        int bytesRead = 0;
-        byte[] buffer = null;
+    public void saveImage(ServletInputStream stream, String folderToSave, String fileName) throws IOException, Exception {
+    	System.out.println("BasicBannerService.saveImage()"); // XXX remove me
+    	int tempFileLen = 0;
+		int bytesRead = 0;
+		File file = new File(folderToSave, fileName);
 
-        int tempFileLen = 0;
+		if (!file.exists()) {
+			file.createNewFile();
+		} else {
+			// an unlikely scenario
+			throw new Exception("File with the save name already exists!");
+		}
 
-        newFileName = KeyGenerator.generateNameHash() + ".png";
+		FileOutputStream fios = new FileOutputStream(file);
+		byte[] buffer = new byte[ CommonData.BUFFER_SIZE];
 
-        //fullPath = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER + File.separator + newFileName;
-        //String dirFileName = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
+		// TODO validate request!
 
-        String dirFileName = "";
-
-        dir = new File(dirFileName);
-        file = new File(dirFileName, newFileName);
-        System.out.println("fullPath: " + fullPath);
-
-        if (!dir.exists()) {
-                dir.mkdir();
-        }
-        if (!file.exists()) {
-                file.createNewFile();
-        }
-
-        fios = new FileOutputStream(file);
-        buffer = new byte[ CommonData.BUFFER_SIZE];
-
-        // TODO validate request!
-
-        while ((bytesRead = stream.read(buffer)) > 0) {
-                fios.write(buffer, 0, bytesRead);
-                tempFileLen += bytesRead;
-        }
-        fios.flush();
-        fios.close();
-
-        return newFileName;
+		while ((bytesRead = stream.read(buffer)) > 0) {
+			fios.write(buffer, 0, bytesRead);
+			tempFileLen += bytesRead;
+		}
+		fios.flush();
+		fios.close();
     }
 
     @Transactional
@@ -214,6 +198,15 @@ public class BasicBannerService implements BannerService, Serializable {
 
 	public void setUserDao(UserDao userDao) {
 		this.userDao = userDao;
+	}
+
+	public User getUserById(String id) {
+		try {
+			return getUserDao().getUser(Integer.valueOf(id));
+		} catch (Exception e) {
+			log.error("Problem retrieving user by id");
+			return null;
+		}
 	}
 
 }

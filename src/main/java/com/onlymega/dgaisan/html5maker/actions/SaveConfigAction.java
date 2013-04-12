@@ -1,5 +1,6 @@
 package com.onlymega.dgaisan.html5maker.actions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -18,8 +19,10 @@ import com.onlymega.dgaisan.html5maker.dao.TempBannerDao;
 import com.onlymega.dgaisan.html5maker.dao.UserDao;
 import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
 import com.onlymega.dgaisan.html5maker.model.TempBanner;
+import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
+import com.onlymega.dgaisan.html5maker.utils.TokenUtil;
 
 import com.opensymphony.xwork2.ActionSupport;
 
@@ -45,10 +48,10 @@ public class SaveConfigAction extends ActionSupport
 	private String bn_width;
 	private String bn_height;
 
-	// user token is populated when user is logged in...
 	private String token;
+	private User currentUser;
 
-	private ServletContext context;
+	private ServletContext servletContext;
 	private HttpServletResponse response;
 	private Map<String, Object> session;
 
@@ -63,35 +66,48 @@ public class SaveConfigAction extends ActionSupport
 	@Override
 	public String execute() throws Exception {
 		System.out.println("SaveConfigAction.execute()"); // XXX remove me
-		TempBanner tempBanner = null;
-		String dataToken = KeyGenerator.generateKey();
-		String ret = "";
-		String tempPath = context.getRealPath("/") + CommonData.TEMP_FOLDER;
-		Collection<String> tempBannerIds = null;
 
-		System.out.println("temppath = " + tempPath);
+		TempBanner tempBanner = null;
+		Collection<String> tempBannerIds = null;
+		String ret = "";
 
 		try {
-			tempBanner = new TempBanner(dataToken, getJson(), getHtml(), 
-					getImages_array(), Integer.valueOf(getBn_width()), 
-					Integer.valueOf(getBn_height()), 0, new Date());
-			getBannerService().saveTempData(tempBanner, tempPath);
+			String folderToSave = getSaveFolder();
+			String dataToken = KeyGenerator.generateKey();
+			System.out.println("folderToSave: " + folderToSave); // XXX remove me!
+			
+			if (getCurrentUser() != null) {
+				System.out.println("currentUser != null"); // XXX remove me
+				
+			} else {
+				System.out.println("currentUser == null");
+				tempBanner = new TempBanner(dataToken, getJson(), getHtml(), 
+						getImages_array(), Integer.valueOf(getBn_width()), 
+						Integer.valueOf(getBn_height()), 0, new Date());
+				getBannerService().saveTempData(tempBanner, folderToSave);
 
-			tempBannerIds = (Collection<String>) session.get(CommonData.DATA_ID);
-			if (tempBannerIds == null || tempBannerIds.isEmpty()) {
-				tempBannerIds = new ArrayList<String>();
+				tempBannerIds = (Collection<String>) session.get(CommonData.DATA_ID);
+				if (tempBannerIds == null || tempBannerIds.isEmpty()) {
+					tempBannerIds = new ArrayList<String>();
+				}
+
+				// TODO check if this works...
+				tempBannerIds.add(Integer.toString(tempBanner.getBannerId()));
+				session.put(CommonData.DATA_ID, tempBannerIds);
 			}
-			// TODO check if this works...
-			tempBannerIds.add(Integer.toString(tempBanner.getBannerId()));
-			session.put(CommonData.DATA_ID, tempBannerIds);
+			
+
 
 			ret = dataToken;
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			System.out.println("Exception in SaveConfig"); // XXX remove me
-			System.out.println(e.getMessage());
+			System.out.println(ex.getMessage());
+			System.out.print(ex.getStackTrace()[ 0].getMethodName() + "  ");
+			System.out.println(ex.getStackTrace()[ 0].getLineNumber());
 
+			
 			ret = ERROR;
-			logger.error(e.getMessage(), e);
+			logger.error(ex.getMessage(), ex);
 		} finally {
 			try {
 				response.getWriter().print(ret);
@@ -104,6 +120,34 @@ public class SaveConfigAction extends ActionSupport
 		return null;
 	}
 
+	
+	
+
+	/*
+	 * Gets folder(temp or user's) in which banner data will be saved.
+	 * Also sets currentUser if action is called by an authorized user.
+	 */
+	private String getSaveFolder() throws Exception {
+		System.out.println("SaveImageAction.getSaveFolder()"); // XXX remove me
+		String saveFolder = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
+
+		if (getToken() != null && !"".equals(getToken())) {
+			String userId = TokenUtil.extractUserId(getToken());
+			String userFolderName = getBannerService().getUserFolder(userId);
+
+			if (userFolderName != null) {
+				saveFolder = servletContext.getRealPath("/") + CommonData.USER_FILE_FOLDER
+					+ File.separator + userFolderName;
+				setCurrentUser(getBannerService().getUserById(userId));
+			} else {
+				throw new Exception("Invalid token was passed!");
+			}
+		}
+
+		return saveFolder;
+	}
+
+	
 	public String getJson() {
 		return json;
 	}
@@ -145,7 +189,7 @@ public class SaveConfigAction extends ActionSupport
 	}
 
 	public void setServletContext(ServletContext context) {
-		this.context = context;
+		this.servletContext = context;
 	}
 
 	public String getImages_array() {
@@ -170,5 +214,13 @@ public class SaveConfigAction extends ActionSupport
 
 	public void setBn_height(String bnHeight) {
 		bn_height = bnHeight;
+	}
+
+	private void setCurrentUser(User u) {
+		currentUser = u;
+	}
+
+	private User getCurrentUser() {
+		return currentUser;
 	}
 }

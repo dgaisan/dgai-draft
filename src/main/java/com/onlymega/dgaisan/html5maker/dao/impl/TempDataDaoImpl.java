@@ -34,7 +34,7 @@ public class TempDataDaoImpl implements TempBannerDao {
 		Session session = null;
 		TempBanner data = null;
 		String queryString = 
-			"from TempData d where d.dataToken = ?";
+			"from TempBanner d where d.dataToken = ?";
 
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();

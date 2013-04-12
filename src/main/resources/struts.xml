@@ -132,15 +132,14 @@
 		<action name="saveData" class="saveData">
 			<result>/WEB-INF/jsp/dashboard.jsp</result>
 		</action>
-		
+
 		<action name="/download/*" class="download">
 			<param name="dataToken">{1}</param>
 			<result>/jsp/download.jsp</result>
 			<result name="input">/error.jsp</result>
 			<result name="error">/error.jsp</result>
 		</action>
-		
-		
+
 		<action name="registration/confirmation/*" class="register" method="confirmFreeRegistration">
 			<param name="confirmationCode">{1}</param>
 			<result name="input">/WEB-INF/jsp/memberships.jsp</result>
@@ -163,8 +162,7 @@
 			</result>
 			<result name="error">/error.jsp</result>   
 		</action>
-		
-		
+
 		<action name="saveBanner/*" class="banner" method="saveBannerAction">
 			<interceptor-ref name="defaultLoginStack" />
 			<param name="bannerId">{1}</param>
@@ -174,10 +172,10 @@
 			</result>
 			<result name="error">/error.jsp</result>   
 		</action>
-		
+
 		<action name="homepage" class="login" method="home">
 			<interceptor-ref name="defaultLoginStack" />
-			
+
 			<result name="error">/error.jsp</result>
 			<result name="input">/jsp/login.jsp</result>
 			<result name="FREE">/WEB-INF/jsp/Dashboard_Free.jsp</result>

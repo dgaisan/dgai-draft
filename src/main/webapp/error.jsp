@@ -36,7 +36,7 @@
                             </div>
                             <div class="menu">
                             	<ul>
-                                	<li><a href="#" title="">Create HTML5 Banner</a></li>
+                                	<li><a href="<s:url value='/design/create.html'/>" title="">Create HTML5 Banner</a></li>
                                 	<li><a href="#" title="">FAQs</a></li>
                                 	<li><a href="#" title="">Contact</a></li>
                                 	<li>
@@ -46,10 +46,10 @@
                                             </a>
                                         </s:if>
                                         <s:elseif test="%{#session['loggedin'] == 1}">
-                                            <a href="homepage.html" title="Dashboard" class="sign">
+                                            <a href="<s:url value='/homepage.html'/>" title="Dashboard" class="sign">
                                                 <span>Dashboard</span>
                                             </a>
-                                            <a href="logout.html" title="Logout" class="sign">
+                                            <a href="<s:url value='/logout.html'/>" title="Logout" class="sign">
                                                 <span>Sign Out</span>
                                             </a>
                                         </s:elseif>
@@ -76,7 +76,7 @@
                         </s:if>
                     </div><!--end input_block-->
                     <div class="signing_text signing_text_second signing_text_second_404">
-                    	<p>Go back to the <a href="index.html" title="">homepage</a> or <a href="#" title="">contact us</a> about the problem.</p>
+                    	<p>Go back to the <a href="<s:url value='/index.html'/>" title="">homepage</a> or <a href="#" title="">contact us</a> about the problem.</p>
                     </div><!--end input_block-->
                 </div>
             </div>
