@@ -29,10 +29,6 @@
 			<column name="banner_file" />
 		</property>
 
-		<property name="zipFile" type="string">
-			<column name="zip_file" />
-		</property>
-
 		<property name="bannerWidth" type="java.lang.Integer">
 			<column name="banner_width" />
 		</property>
@@ -46,7 +42,7 @@
 		</property>
 
 		<many-to-one name="user" class="com.onlymega.dgaisan.html5maker.model.User">
-			<column name="userId" not-null="true" />
+			<column name="user_id" not-null="true" />
 		</many-to-one>
 
 		<property name="dateCreated" type="java.util.Date">

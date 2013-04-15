@@ -3,6 +3,8 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@taglib prefix="s" uri="/struts-tags" %>
+
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta charset="utf-8">
@@ -29,6 +31,7 @@
     <link rel="image_src" href="image.png">
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,700,900,700italic|Ubuntu:300,700&subset=latin,cyrillic-ext">
     <link rel="stylesheet" href="<s:url value='/css/main.css'/>">
+    
     <title>
         HTML5 MAKER | Templates | Try it for FREE! | www.html5maker.com
     </title>
@@ -56,7 +59,7 @@
                                 	<li><a href="#" title="">FAQs</a></li>
                                 	<li><a href="#" title="">Contact</a></li>
                                 	<li>
-                                        <a href="logout.html" title="Logout" class="sign">
+                                        <a href="<s:url value='/logout.html'/>" title="Logout" class="sign">
                                             <span>Sign Out</span>
                                         </a>
                                     </li>
@@ -95,25 +98,41 @@
                             <div id="tabs-1" class="tabs_block tabs_block_full tabs_block_widht">
                             	<div class="dashboard">
                                     <div class="option_title">
-                                        1 Total Banner
+                                        <s:property value="totalBanners" default="Unknown" /> Total Banner(s)
                                         <span>View your Banner</span>
                                     </div><!--end option_title-->
                                     <div class="clearfix"></div>
-                                    <div class="banner banner_free">
-                                    	<div class="banner_img">
-                                        	<!--insert image here 278x158-->
+
+                                    <s:iterator value="banners">
+                                        <div class="banner">
+                                        	<div class="banner_img">
+                                            	<!--insert image here 278x158-->
+                                            </div><!--end banner-->
+                                            <div class="banner_name"><s:property value="name" default="No Name" /></div>
+                                            <p>
+                                                <strong>
+                                                    <s:property value="bannerWidth" />x<s:property value="bannerHeight" />
+                                                </strong> 
+                                                size and created on 
+                                                <strong><s:date name="dateCreated" format="dd/MM/yyyy" /></strong>
+                                            </p>
+                                            <!--
+                                            <s:url var="ajaxTest" value="/dashboard/download.html">
+                                                <s:param name="bannerId">
+                                                    <s:property value="id" />
+                                                </s:param>
+                                            </s:url>
+                                            -->
+                                            <div class="banner_control">
+                                            	<a href="#popups"  class="various" title="Embed">Embed</a>
+                                            	<a href="<s:url value='/dashboard/download.html'/>?bannerId=<s:property value='id' />" title="Download">Download</a>
+                                            	<a href="#" title="Dublicate">Dublicate</a>
+                                            	<a href="#" title="Rename">Rename</a>
+                                            	<a href="#" title="Edit">Edit</a>
+                                            	<a href="#" title="Delete">Delete</a>
+                                            </div><!--end banner_control-->
                                         </div><!--end banner-->
-                                        <div class="banner_name">Banner Name</div>
-                                        <p><strong>468x90</strong> size and created in <strong>Nov 27, 2012</strong></p>
-                                        <div class="banner_control">
-                                        	<a href="#popups"  class="various" title="Embed">Embed</a>
-                                        	<a href="#" title="Download">Download</a>
-                                        	<a href="#" title="Dublicate">Dublicate</a>
-                                        	<a href="#" title="Rename">Rename</a>
-                                        	<a href="#" title="Edit">Edit</a>
-                                        	<a href="#" title="Delete">Delete</a>
-                                        </div><!--end banner_control-->
-                                    </div><!--end banner-->
+                                    </s:iterator>
                                     <div class="all"><a href="#" title="Change subscription plan to create more banners">Change subscription plan to create more banners</a></div>
                                 </div><!--end dashboard-->
                                 <div class="trafik">
@@ -123,7 +142,7 @@
                                         <span>Statistic is updating every hour</span>
                                     </div><!--end option_title-->
                                     <div class="trafik_box">
-                                    	<div class="mb">989 Mb</div>
+                                    	<div class="mb"><s:property value="totalTraffic" default="Unknown" /></div>
                                         <div class="procent great">83%</div>
                                         <div class="grafik">
                                         	<div class="grafik_grad" style="width:83%;"></div>

@@ -200,20 +200,14 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
      */
     public String logout() {
     	Map<String, Object> session = null;
-    	User user = null;
 
     	try {
     		session = ServletActionContext.getContext().getSession();
-    		user  = (User) session.get(CommonData.USER_OBJECT);
-
-    		if (user != null) {
-    			session.remove(CommonData.USER_OBJECT);
-    			session.remove(CommonData.LOGGED_IN);
-    			membershipDao.removeRegistrationConfirmationsByUser(user);
-    			user = null;
-    		}
+			session.remove(CommonData.USER_OBJECT);
+			session.remove(CommonData.LOGGED_IN);
     	} catch (Exception ex) {
     		ex.printStackTrace(); // XXX remove me
+
     		logger.error(ex.getMessage(), ex);
     		return ERROR;
     	}
@@ -223,40 +217,26 @@ public class LoginAction extends ActionSupport implements ServletRequestAware, S
 
     /**
      * Action that takes a user to the proper Dash board.
+     * @deprecated
      */
     public String home() {
     	System.out.println("LoginAction.home()"); // XXX remove me
-
-    	Map<String, Object> session = null;
-    	User user = null;
-    	List<Membership> availableMemberships = null;
-
-    	try {
-    		session = ServletActionContext.getContext().getSession();
-    		user = (User) session.get(CommonData.USER_OBJECT);
-
-    		if (user == null) {
-    			System.out.println("user == null"); // XXX remove me!
-    			return ERROR;
-    		}
-
-    		setToken(TokenUtil.getnerateToken("", String.valueOf(user.getUserId())));
-
-    		// TODO Update this logic to call bannerService.isPremium()...
-    		availableMemberships = membershipDao.getAvailableMemberships();
-
-    		for (Membership m : availableMemberships) {
-    			if (m.getId() == user.getMembershipType() && m.getName().equals(CommonData.FREE_MEMBERSHIP)) {
-    				return "FREE";
-    			}
-    		}
-
-    		return "PREMIUM";
-		} catch (Exception e) {
-			e.printStackTrace(); // XXX remove me
-			return ERROR;
-		}
-    }
+    	
+    	// deligated to Banner.execute()
+    	
+   		// TODO Update this logic to call bannerService.isPremium()...
+//		availableMemberships = membershipDao.getAvailableMemberships();
+//
+//		for (Membership m : availableMemberships) {
+//			if (m.getId() == user.getMembershipType() && m.getName().equals(CommonData.FREE_MEMBERSHIP)) {
+//				return "FREE";
+//			}
+//		}
+//
+//		return "PREMIUM";
+    	
+    	return SUCCESS;
+     }
 
 	public void setUserDao(UserDao userDao) {
 		this.userDao = userDao;

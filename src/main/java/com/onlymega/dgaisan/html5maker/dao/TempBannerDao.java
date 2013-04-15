@@ -30,8 +30,8 @@ public interface TempBannerDao {
 	/**
 	 * Retrieves a {@link TempBanner} by its {@link Long ID}.
 	 * 
-	 * @param tempBannerId {@link Long}
+	 * @param tempBannerId {@link Integer}
 	 * @return a {@link TempBanner} or {@code null}
 	 */
-	TempBanner getTempBannerById(Long tempBannerId);
+	TempBanner getTempBannerById(Integer tempBannerId);
 }

@@ -15,9 +15,7 @@ import org.apache.struts2.interceptor.SessionAware;
 import org.apache.struts2.util.ServletContextAware;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
-import com.onlymega.dgaisan.html5maker.dao.TempBannerDao;
-import com.onlymega.dgaisan.html5maker.dao.UserDao;
-import com.onlymega.dgaisan.html5maker.model.RegistrationConfirmation;
+import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
@@ -67,7 +65,6 @@ public class SaveConfigAction extends ActionSupport
 	public String execute() throws Exception {
 		System.out.println("SaveConfigAction.execute()"); // XXX remove me
 
-		TempBanner tempBanner = null;
 		Collection<String> tempBannerIds = null;
 		String ret = "";
 
@@ -77,11 +74,48 @@ public class SaveConfigAction extends ActionSupport
 			System.out.println("folderToSave: " + folderToSave); // XXX remove me!
 			
 			if (getCurrentUser() != null) {
-				System.out.println("currentUser != null"); // XXX remove me
+				System.out.println("Saving Banner"); // XXX remove me
+				Banner banner = null;
+				String bannerId = getBannerId();
 				
+				if (bannerId != null && !"".equals(bannerId)) {
+					banner = getBannerService().getBannerById(bannerId);
+				}
+
+				if (banner != null) {
+					// Edit existing Banner
+
+					// TODO : save new files.
+					// TODO : keep same banner name
+					// TODO : recalc size
+					// TODO : remove old files
+				} else {
+					// New banner
+					System.out.println("Saving New private banner"); // XXX remove m,e
+					banner = new Banner();
+
+					// TODO: 
+					//currentUser.getMembershipType()
+					// if( membership.getBannerLimit() <= howManyBanners() ) {
+					// 	banner.setActive(0);
+					//}
+
+					banner.setActive(1); // XXX should I set this field here?
+					banner.setDateCreated(new Date());
+		    		banner.setName(getToken()); // XXX what's the name?
+		    		banner.setUser(getCurrentUser());
+					banner.setBannerConfig(getJson());
+					banner.setBannerFile(getHtml());
+					banner.setImagesArray(getImages_array());
+					banner.setBannerWidth(Integer.valueOf(getBn_width()));
+					banner.setBannerHeight(Integer.valueOf(getBn_height()));
+					banner.setBannerSize(0); // TODO CALCULATE banner size
+
+					getBannerService().saveBanner(banner);
+				}
 			} else {
-				System.out.println("currentUser == null");
-				tempBanner = new TempBanner(dataToken, getJson(), getHtml(), 
+				System.out.println("Saving Temp banner");
+				TempBanner tempBanner = new TempBanner(dataToken, getJson(), getHtml(), 
 						getImages_array(), Integer.valueOf(getBn_width()), 
 						Integer.valueOf(getBn_height()), 0, new Date());
 				getBannerService().saveTempData(tempBanner, folderToSave);
@@ -95,17 +129,12 @@ public class SaveConfigAction extends ActionSupport
 				tempBannerIds.add(Integer.toString(tempBanner.getBannerId()));
 				session.put(CommonData.DATA_ID, tempBannerIds);
 			}
-			
-
 
 			ret = dataToken;
 		} catch (Exception ex) {
 			System.out.println("Exception in SaveConfig"); // XXX remove me
-			System.out.println(ex.getMessage());
-			System.out.print(ex.getStackTrace()[ 0].getMethodName() + "  ");
-			System.out.println(ex.getStackTrace()[ 0].getLineNumber());
+			ex.printStackTrace();
 
-			
 			ret = ERROR;
 			logger.error(ex.getMessage(), ex);
 		} finally {
@@ -120,9 +149,10 @@ public class SaveConfigAction extends ActionSupport
 		return null;
 	}
 
+	private String getBannerId() {
+		return TokenUtil.extractBannerId(getToken());
+	}
 	
-	
-
 	/*
 	 * Gets folder(temp or user's) in which banner data will be saved.
 	 * Also sets currentUser if action is called by an authorized user.

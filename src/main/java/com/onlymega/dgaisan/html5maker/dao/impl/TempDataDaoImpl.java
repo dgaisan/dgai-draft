@@ -51,7 +51,10 @@ public class TempDataDaoImpl implements TempBannerDao {
 		return data;
 	}
 
-	public TempBanner getTempBannerById(Long tempDataId) {
+	public TempBanner getTempBannerById(Integer tempDataId) {
+		System.out.println("TempDataDaoImpl.getTempBannerById()");
+		System.out.println("tempDataId = " + tempDataId); /// XXX remove me
+		
 		Session session = null;
 		TempBanner data = null;
 

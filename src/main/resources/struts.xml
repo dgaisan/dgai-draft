@@ -110,7 +110,7 @@
 			<result name="error">/error.jsp</result>
 			<result>/WEB-INF/jsp/updatepassword.jsp</result>
 		</action>
-		
+
 		<action name="restore/password/update" class="restorePassword">
 			<result name="error">/error.jsp</result>
 			<result name="input">/WEB-INF/jsp/updatepassword.jsp</result>
@@ -135,6 +135,7 @@
 
 		<action name="/download/*" class="download">
 			<param name="dataToken">{1}</param>
+
 			<result>/jsp/download.jsp</result>
 			<result name="input">/error.jsp</result>
 			<result name="error">/error.jsp</result>
@@ -142,6 +143,7 @@
 
 		<action name="registration/confirmation/*" class="register" method="confirmFreeRegistration">
 			<param name="confirmationCode">{1}</param>
+
 			<result name="input">/WEB-INF/jsp/memberships.jsp</result>
 			<result name="error">/error.jsp</result>
 			<result type="chain">
@@ -149,13 +151,14 @@
 			</result>
 		</action>
 
-		<action name="design/create" class="banner">
+		<action name="design/create" class="banner" method="createNew">
 			<result name="error">/error.jsp</result>
 			<result>/app.jsp</result>
 		</action>
 
 		<action name="saveBanner" class="banner" method="saveBannerAction">
 			<interceptor-ref name="defaultLoginStack" />
+
 			<result>/WEB-INF/jsp/dashboard.jsp</result>
 			<result name="login_result" type="redirectAction" >
 				<param name="actionName">index</param>
@@ -165,7 +168,9 @@
 
 		<action name="saveBanner/*" class="banner" method="saveBannerAction">
 			<interceptor-ref name="defaultLoginStack" />
+
 			<param name="bannerId">{1}</param>
+
 			<result>/WEB-INF/jsp/dashboard.jsp</result>
 			<result name="login_result" type="redirectAction" >
 				<param name="actionName">index</param>
@@ -173,7 +178,7 @@
 			<result name="error">/error.jsp</result>   
 		</action>
 
-		<action name="homepage" class="login" method="home">
+		<action name="homepage" class="banner">
 			<interceptor-ref name="defaultLoginStack" />
 
 			<result name="error">/error.jsp</result>
@@ -181,6 +186,29 @@
 			<result name="FREE">/WEB-INF/jsp/Dashboard_Free.jsp</result>
 			<result name="PREMIUM">/WEB-INF/jsp/Dashboard_Paid.jsp</result>
 		</action>
+	<!-- 
+		<action name="dashboard/download" class="banner" method="download">
+			<interceptor-ref name="defaultLoginStack" />
+
+			<result name="FREE">/WEB-INF/jsp/Dashboard_Free.jsp</result>
+			<result name="PREMIUM">/WEB-INF/jsp/Dashboard_Paid.jsp</result>
+			<result name="input">/error.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+	-->
+		<action name="dashboard/download" class="banner" method="download">
+			<interceptor-ref name="defaultLoginStack" />
+
+			<result name="success" type="stream">
+			  <param name="contentType">application/octet-stream</param>
+			  <param name="inputName">fileInputStream</param>
+			  <param name="contentDisposition">attachment;filename="fileABC.txt"</param>
+			  <param name="bufferSize">1024</param>
+			</result>
+			<result name="input">/error.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+				
 	</package>
 	
 	<package name="admin" extends="struts-default">

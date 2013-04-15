@@ -26,18 +26,18 @@ public class MembershipDaoImpl implements MembershipDao {
 	 */
 	public List<Membership> getAvailableMemberships() throws Exception {
 		List<Membership> ret = new ArrayList<Membership>();
-		
-		ret.add(new Membership(1, CommonData.FREE_MEMBERSHIP, "", 0.0));
-		ret.add(new Membership(2, "Plus", "", 4.99));
-		ret.add(new Membership(3, "Premium", "", 9.49));
-		ret.add(new Membership(3, "Ultimate", "", 18.99));
-		
+
+		ret.add(new Membership(1, CommonData.FREE_MEMBERSHIP, "", 0.0, 1, 100));
+		ret.add(new Membership(2, "Plus", "", 4.99, 10, 15000));
+		ret.add(new Membership(3, "Premium", "", 9.49, 100, 30000));
+		ret.add(new Membership(4, "Ultimate", "", 18.99, 99999, 100000));
+
 		return ret;
 	}
 
 	public void saveRegistrationConfirmationCode(RegistrationConfirmation reg) throws HibernateException {
 		Session session = null;
-		
+
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			session.getTransaction().begin();
@@ -59,7 +59,7 @@ public class MembershipDaoImpl implements MembershipDao {
 			String code) throws HibernateException {
 		Session session = null;
 		RegistrationConfirmation reg = null;
-		
+
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			reg = (RegistrationConfirmation) session.createQuery("from RegistrationConfirmation r where r.confirmationCode = ?")
@@ -69,7 +69,7 @@ public class MembershipDaoImpl implements MembershipDao {
 				session.close();
 			}
 		}
-		
+
 		return reg;
 	}
 
@@ -95,7 +95,7 @@ public class MembershipDaoImpl implements MembershipDao {
 
 	public void removeRegistrationConfirmationsByUser(User user)
 			throws HibernateException {
-		
+
 		Session session = null;
 		String query = "delete from RegistrationConfirmation r " +
 				"where r.user_id = ?";

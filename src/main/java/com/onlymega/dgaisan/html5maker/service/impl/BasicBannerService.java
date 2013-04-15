@@ -24,6 +24,7 @@ import com.onlymega.dgaisan.html5maker.service.exception.BannerServiceException;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.ZipPackage;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import javax.servlet.ServletInputStream;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.mapping.Collection;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -52,7 +54,7 @@ public class BasicBannerService implements BannerService, Serializable {
 
     @Transactional
     public String saveTempData(TempBanner data, String tempDir)throws Exception {
-    	System.out.println("BasicBannerService.saveTempData()");
+    	System.out.println("BasicBannerService.saveTempData()"); /// XXX remove me
         getTempDataDao().saveTempBanner(data);
         new ZipPackage(data, tempDir, data.getDataToken()).create();
         
@@ -86,24 +88,16 @@ public class BasicBannerService implements BannerService, Serializable {
     }
 
     @Transactional
-    public int saveBanner(Banner b, CloudData c) throws HibernateException, AmazonServiceException, BannerServiceException {
+    public int saveBanner(Banner b) throws Exception {
+    	System.out.println("BasicBannerService.saveBanner()"); // XXX remove me
         b.setDateCreated(new Date());
-
-        try {
-        	bannerDao.save(b);
-        	cloudDao.save(c.getBucketName(), c.getPath(), c.getFilename(), c.getInputFile());
-        } catch (Exception e) {
-        	e.printStackTrace(); // XXX remove me
-			log.error(String.format("Couln't save the banner (%s, %s) for user with ID: ", 
-					String.valueOf(b.getId()), b.getUser().getUserId()));
-			throw new BannerServiceException();
-		}
+        bannerDao.save(b);
         
         return b.getId();
     }
 
     public TempBanner getTempData(String tempDataId) {
-		return tempDataDao.getTempBannerById(Long.valueOf(tempDataId));
+		return tempDataDao.getTempBannerById(Integer.valueOf(tempDataId));
 	}
 
 	public boolean isPremiumAccount(User user) throws Exception {
@@ -120,12 +114,12 @@ public class BasicBannerService implements BannerService, Serializable {
     
 	public int countBanners(User user) throws Exception {
 		System.out.println("BasicBannerService.countBanners()"); //XXX remove me
-		
+
 		int ret = bannerDao
 			.countBannersByUser(String.valueOf(user.getUserId()));
-		
+
 		System.out.println("count = " + ret); // XXX remove me
-		
+
 		return ret;
 	}
 
@@ -209,4 +203,42 @@ public class BasicBannerService implements BannerService, Serializable {
 		}
 	}
 
+	public Banner getBannerById(String bannerId) {
+		return getBannerDao().getBannerById(bannerId);
+	}
+
+	public List<Banner> getBannersByUser(User user) {
+		System.out.println("BasicBannerService.getBannersByUser()"); // XXX remove me
+		List<Banner> ret = null;
+
+		try {
+			ret = getBannerDao().getBannersByUser(user);
+			if (ret == null) {
+				ret = Collections.emptyList();
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); // XXX remove me
+			log.error(e);
+		}
+
+		return ret; 
+	}
+
+	public Membership getMembershipById(int id) {
+		try {
+			List<Membership> memberships = 
+				getMembershipDao().getAvailableMemberships();
+
+			for (Membership m : memberships) {
+				if (m.getId() == id) {
+					return m;
+				}
+			}
+		} catch (Exception e) {
+			log.error("Can't retrieve Memberships");
+			return null;
+		}
+
+		return null;
+	}
 }

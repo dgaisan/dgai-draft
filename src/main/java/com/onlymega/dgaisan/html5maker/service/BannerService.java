@@ -2,11 +2,13 @@ package com.onlymega.dgaisan.html5maker.service;
 
 import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.CloudData;
+import com.onlymega.dgaisan.html5maker.model.Membership;
 import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.model.User;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.servlet.ServletInputStream;
 
@@ -34,21 +36,20 @@ public interface BannerService {
 		throws IOException, Exception;
 
     /**
-     * A service call that saves a banner data into a database as
-     * well as saving the banner itself on the cloud.
+     * A service call that saves a banner data into a database
      * 
      * @param b {@link Banner}
-     * @param c {@link CloudData}
      * 
      * @return newly generated {@link Banner} id. 
+     * @throws Exception
      */
-	int saveBanner(Banner b, CloudData c);
+	int saveBanner(Banner b) throws Exception;
 
 	/**
-	 * TODO
+	 * Retrieves an existing {@link TempBanner} by its token ID.
 	 * 
-	 * @param tempDataId
-	 * @return
+	 * @param tempDataId {@link String token ID}
+	 * @return {@link TempBanner}
 	 */
 	public TempBanner getTempData(String tempDataId);
 
@@ -94,4 +95,29 @@ public interface BannerService {
 	 * @return a {@link User}, or {@code null}
 	 */
 	User getUserById(String id);
+	
+	/**
+	 * Retrives a {@link Banner} by its Id.
+	 * 
+	 * @param bannerId {@link String} banner id
+	 * @return {@link Banner} or {@code null}
+	 */
+	Banner getBannerById(String bannerId);
+	
+	/**
+	 * Retrieves a {@link List} of {@link Banner}s that belong to a
+	 * {@link User}.
+	 * 
+	 * @param user {@link User}
+	 * @return a {@link List} of {@link Banner}s or empty {@link List}
+	 */
+	List<Banner> getBannersByUser(User user);
+	
+	/**
+	 * Retrieves a {@link Membership} by its ID.
+	 * 
+	 * @param id
+	 * @return {@link Membership} or {@code null}
+	 */
+	Membership getMembershipById(int id);
 }

@@ -1,54 +1,122 @@
 package com.onlymega.dgaisan.html5maker.actions;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import org.apache.log4j.Logger;
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.interceptor.SessionAware;
+import org.apache.struts2.util.ServletContextAware;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
 import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.CloudData;
+import com.onlymega.dgaisan.html5maker.model.Membership;
 import com.onlymega.dgaisan.html5maker.model.TempBanner;
 import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
+import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.TokenUtil;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
- * TODO
+ * Action for working with banners. 
  * 
  * @author Dmitri Gaisan
  *
  */
-public class BannerAction extends ActionSupport implements SessionAware {
-    private static final long serialVersionUID = 3819374929293L;
+public class BannerAction extends ActionSupport implements 
+	SessionAware, ServletContextAware {
+    
+	private static final long serialVersionUID = 3819374929293L;
     private static final Logger logger = Logger.getLogger(BannerAction.class.getName());
 
+    private static final String PREMIUM_DASHBOARD = "PREMIUM";
+    private static final String LIMITED_DASHBOARD = "FREE";
+
     private Map<String, Object> session;
+    private ServletContext context;
 
     private String token;
-   
-    /**
-     * Used when editing a banner
-     */
-    private String bannerId;
+    private String totalBanners;
+    private String usedTraffic;
+    private String totalTraffic;
+    private String membershipPlan;
+
+	private List<Banner> banners;    
 
     private BannerService bannerService;
+
+    /**
+     * Dashboard action
+     */
+    @Override
+    public String execute() {
+    	System.out.println("BannerAction.execute()"); // XXX remove me
+
+    	try {
+    		User user = (User) session.get(CommonData.USER_OBJECT);
+
+    		if (user == null) {
+    			System.out.println("user == null"); // XXX remove me!
+
+    			getActionErrors().clear();
+    			getActionErrors().add("Unable to identify user");
+
+    			return ERROR;
+    		}
+
+    		setToken(TokenUtil.getnerateToken("", String.valueOf(user.getUserId())));
+    		setBanners(getBannerService().getBannersByUser(user));
+
+    		System.out.println("# of banners: " + getBanners().size());
+
+    		int countBanners = getBannerService().countBanners(user);
+    		Membership membershipType = getBannerService().getMembershipById(user.getMembershipType());
+
+    		if (countBanners > 0) {
+    			setTotalBanners(String.valueOf(countBanners));
+    		} else {
+    			setTotalBanners("0");
+    		}
+    		setTotalTraffic(String.valueOf(membershipType.getTotalTraffic()));
+    		setUsedTraffic(""); // TODO CACLULATE
+    		setMembershipPlan(membershipType.getName());
+    		
+    		
+    		if (getBannerService().isPremiumAccount(user)) {
+    			// ...
+    			return PREMIUM_DASHBOARD;
+    		}
+    		    		
+    		
+    		return LIMITED_DASHBOARD;
+ 
+		} catch (Exception e) {
+			e.printStackTrace(); // XXX remove me
+			return ERROR;
+		}
+    }
 
     /**
      * An action for creating a new banner.
      * 
      * @return result
      */
-    @Override
-    public String execute() {
+
+    public String createNew() {
         User currentUser = null;
 
-        System.out.println("BannerAction.execute()"); // XXX remove me
+        System.out.println("BannerAction.createNew()"); // XXX remove me
 
         try {
             currentUser = (User) session.get(CommonData.USER_OBJECT);
@@ -68,10 +136,12 @@ public class BannerAction extends ActionSupport implements SessionAware {
         }
 
         return SUCCESS;
+
     }
 
     /**
      * Action for editing an existing banner
+     * 
      * @return
      */
     public String editBanner() {
@@ -79,6 +149,83 @@ public class BannerAction extends ActionSupport implements SessionAware {
     	
 		return SUCCESS;
 	}
+    
+    private String bannerId;
+    
+    public String getBannerId() {
+		return bannerId;
+	}
+
+	public void setBannerId(String bannerId) {
+		this.bannerId = bannerId;
+	}
+
+	
+	private InputStream fileInputStream;
+	 
+	public InputStream getFileInputStream() {
+		return fileInputStream;
+	}
+ 
+	/**
+     * Action responsible for downloading user's banner
+     * 
+     * @return
+     */
+	/*
+    public String download()  {
+    	System.out.println("BannerAction.download()"); // XXX remove me
+    	System.out.println("bannerId = " + getBannerId()); 
+
+    	
+    	
+    	User user = (User) session.get(CommonData.USER_OBJECT);
+
+    	try {
+			if (getBannerService().isPremiumAccount(user)) {
+				return PREMIUM_DASHBOARD;
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); // XXX remove me
+			return ERROR;
+		}
+
+		return LIMITED_DASHBOARD;
+	}
+    */
+	
+    public String download() {
+    	System.out.println("BannerAction.download()");
+    	System.out.println("bannerId = " + getBannerId());
+
+    	try {
+    		User user = (User) session.get(CommonData.USER_OBJECT);
+    		String userFolderName = user.getUserFolder();
+
+    		String userFolder = context.getRealPath("/") + CommonData.USER_FILE_FOLDER
+				+ File.separator + userFolderName;
+    		Banner banner = retrieveBannerById(getBannerId());
+    		String fileName = KeyGenerator.generateKey();
+    		
+			fileInputStream = new FileInputStream(new File("C:\\downloadfile.txt"));
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		return SUCCESS;
+	}
+    
+    private Banner retrieveBannerById(String bannerId) {
+    	int bId = Integer.valueOf(bannerId);
+    	for (Banner b : getBanners()) {
+    		if (b.getId() == bId) {
+    			return b;
+    		}
+    	}
+    	
+    	return null;
+    }
     
     /**
      * Action for saving a new banner on the cloud.
@@ -96,6 +243,7 @@ public class BannerAction extends ActionSupport implements SessionAware {
 
             if (currentUser == null) {
              	logger.info("Attempt to save banner when not logged in");
+
                 return ERROR;
             }
 
@@ -131,11 +279,11 @@ public class BannerAction extends ActionSupport implements SessionAware {
     		return SUCCESS;
     	}
     	
-    	if (getBannerId() != null && !"".equals(getBannerId())) {
-    		// An existing banner was edited
-    		// TODO ...
-    		return SUCCESS;
-    	}
+//    	if (getBannerId() != null && !"".equals(getBannerId())) {
+//    		// An existing banner was edited
+//    		// TODO ...
+//    		return SUCCESS;
+//    	}
 
     	if (getToken() != null && !"".equals(getToken())) {
     		// newly created banner
@@ -182,15 +330,18 @@ public class BannerAction extends ActionSupport implements SessionAware {
     
     @SuppressWarnings("unchecked")
 	private List<TempBanner> getBannersFromSession() {
+    	System.out.println("BannerAction.getBannersFromSession()");
     	Collection<String> dataIds = 
      		(Collection<String>) session.get(CommonData.DATA_ID);
     	List<TempBanner> ret = null; 
-    	
+
     	if (dataIds != null && !dataIds.isEmpty()) {
     		ret = new ArrayList<TempBanner>();
      		for (String tempDataId : dataIds) {
      			ret.add(bannerService.getTempData(tempDataId));
      		}
+
+     		System.out.println("ret.size" + ret.size());
 
      		dataIds.clear();
      		session.remove(CommonData.DATA_ID);
@@ -205,14 +356,6 @@ public class BannerAction extends ActionSupport implements SessionAware {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public String getBannerId() {
-        return bannerId;
-    }
-
-    public void setBannerId(String bannerId) {
-        this.bannerId = bannerId;
     }
 
     public void setSession(Map<String, Object> session) {
@@ -232,4 +375,49 @@ public class BannerAction extends ActionSupport implements SessionAware {
     public void setBannerService(BannerService bannerService) {
         this.bannerService = bannerService;
     }
+
+	public List<Banner> getBanners() {
+		return banners;
+	}
+
+	public void setBanners(List<Banner> banners) {
+		this.banners = banners;
+	}
+	
+    public String getTotalBanners() {
+		return totalBanners;
+	}
+
+	public void setTotalBanners(String totalBanners) {
+		this.totalBanners = totalBanners;
+	}
+
+	public String getUsedTraffic() {
+		return usedTraffic;
+	}
+
+	public void setUsedTraffic(String usedTraffic) {
+		this.usedTraffic = usedTraffic;
+	}
+
+	public String getTotalTraffic() {
+		return totalTraffic;
+	}
+
+	public void setTotalTraffic(String totalTraffic) {
+		this.totalTraffic = totalTraffic;
+	}
+
+	public String getMembershipPlan() {
+		return membershipPlan;
+	}
+
+	public void setMembershipPlan(String membershipPlan) {
+		this.membershipPlan = membershipPlan;
+	}
+
+	public void setServletContext(ServletContext context) {
+		this.context  = context;
+	}
+
 }

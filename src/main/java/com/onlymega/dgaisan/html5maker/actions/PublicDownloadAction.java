@@ -82,7 +82,12 @@ public class PublicDownloadAction extends ActionSupport implements
 		TempBanner tempBanner = 
 			getTempDataDao().getTempBannerByToken(getDataToken());
 
+		System.out.println("getDataToken() = " + getDataToken()); // XXX remove me
+		
+		
+		
 		if (tempBanner == null) {
+			System.out.println("tempBanner == NULL!"); // XXX remove me!
 			return ERROR;
 		}
 
@@ -92,7 +97,7 @@ public class PublicDownloadAction extends ActionSupport implements
 	private String downloadPremiumBanner() {
 		System.out.println("PublicDownloadAction.downloadPremiumBanner()"); /// XXX remove me
 		
-		
+		// XXX This is handled by BannersAction
 		
 		return SUCCESS;
 	}

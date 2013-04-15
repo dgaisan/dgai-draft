@@ -15,14 +15,14 @@
     <link rel="shortcut icon" type="image/png" href="favicon.png">
     <link rel="image_src" href="image.png">
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,700,900,700italic|Ubuntu:300,700&subset=latin,cyrillic-ext">
-    <link rel="stylesheet" href="<s:url value='css/main.css'/>">
+    <link rel="stylesheet" href="<s:url value='/css/main.css'/>">
     <title>
         HTML5 MAKER | Preview and Download | www.html5maker.com
     </title>
 </head>
 <body>
 	<s:if test="%{#session['loggedin'] != null}">
-		<% response.sendRedirect("homepage.html"); %>
+		<% response.sendRedirect("/homepage.html"); %>
 	</s:if>
 
 	<s:actionerror/>
