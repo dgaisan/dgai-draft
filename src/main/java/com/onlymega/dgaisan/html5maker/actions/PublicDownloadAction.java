@@ -82,10 +82,6 @@ public class PublicDownloadAction extends ActionSupport implements
 		TempBanner tempBanner = 
 			getTempDataDao().getTempBannerByToken(getDataToken());
 
-		System.out.println("getDataToken() = " + getDataToken()); // XXX remove me
-		
-		
-		
 		if (tempBanner == null) {
 			System.out.println("tempBanner == NULL!"); // XXX remove me!
 			return ERROR;
@@ -95,14 +91,12 @@ public class PublicDownloadAction extends ActionSupport implements
 	}
 
 	private String downloadPremiumBanner() {
-		System.out.println("PublicDownloadAction.downloadPremiumBanner()"); /// XXX remove me
-		
-		// XXX This is handled by BannersAction
-		
+		// This is handled by BannersAction
 		return SUCCESS;
 	}
 	
 	public String getTestContext() {
+		System.out.println("PublicDownloadAction.getTestContext()"); // XXX remove me
 		return request.getScheme() + "://" + request.getServerName() 
 			+ (request.getServerPort() == 80 ? "" : ":"+request.getServerPort()) 
 			+ request.getContextPath();
@@ -110,9 +104,20 @@ public class PublicDownloadAction extends ActionSupport implements
 	
 	public String getZip() {
 		// TODO will need to generate ZIP file here, instead of SaveConfig action
-		return ZipPackage.getZipName(getDataToken());
+		return ZipPackage.getTempZipName(getDataToken());
 	}
 
+	public String getEmbedCode() {
+		System.out.println("PublicDownloadAction.getEmbedCode()");
+
+		String ret = CommonData.TEMP_FOLDER + "/" + "html5maker" + 
+			getDataToken() + "/" + "embed.htm"; 
+		
+		System.out.println("ret = " + ret);
+			
+		return ret;
+	}
+	
 	public void setDataToken(String dataToken) {
 		this.dataToken = dataToken;
 	}

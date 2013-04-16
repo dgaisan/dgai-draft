@@ -159,9 +159,11 @@
 		<action name="saveBanner" class="banner" method="saveBannerAction">
 			<interceptor-ref name="defaultLoginStack" />
 
-			<result>/WEB-INF/jsp/dashboard.jsp</result>
+			<result type="chain">
+				<param name="actionName">homepage</param>
+			</result>
 			<result name="login_result" type="redirectAction" >
-				<param name="actionName">index</param>
+				<param name="actionName">signin</param>
 			</result>
 			<result name="error">/error.jsp</result>   
 		</action>
@@ -196,22 +198,30 @@
 			<result name="error">/error.jsp</result>
 		</action>
 	-->
-		<action name="dashboard/download" class="banner" method="download">
+
+		<action name="banner/edit" class="banner" method="editBanner">
 			<interceptor-ref name="defaultLoginStack" />
 
 			<result name="success" type="stream">
 			  <param name="contentType">application/octet-stream</param>
 			  <param name="inputName">fileInputStream</param>
-			  <param name="contentDisposition">attachment;filename="fileABC.txt"</param>
+			  <param name="contentDisposition">attachment;filename="banner.zip"</param>
 			  <param name="bufferSize">1024</param>
 			</result>
 			<result name="input">/error.jsp</result>
 			<result name="error">/error.jsp</result>
 		</action>
-				
+
+		<action name="dashboard/download" class="banner" method="download">
+			<interceptor-ref name="defaultLoginStack" />
+
+			<result>/app.jsp</result>
+			<result name="input">/error.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+	
 	</package>
-	
+
 	<package name="admin" extends="struts-default">
-	
 	</package>
 </struts>

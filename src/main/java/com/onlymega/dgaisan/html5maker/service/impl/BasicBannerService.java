@@ -56,8 +56,9 @@ public class BasicBannerService implements BannerService, Serializable {
     public String saveTempData(TempBanner data, String tempDir)throws Exception {
     	System.out.println("BasicBannerService.saveTempData()"); /// XXX remove me
         getTempDataDao().saveTempBanner(data);
-        new ZipPackage(data, tempDir, data.getDataToken()).create();
-        
+        new ZipPackage(data.getBannerConfig(), data.getHtmlCode(), 
+        		tempDir, data.getDataToken()).create();
+
         return data.getDataToken();
     }
 

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.interceptor.SessionAware;
@@ -26,6 +27,7 @@ import com.onlymega.dgaisan.html5maker.model.User;
 import com.onlymega.dgaisan.html5maker.service.BannerService;
 import com.onlymega.dgaisan.html5maker.utils.KeyGenerator;
 import com.onlymega.dgaisan.html5maker.utils.TokenUtil;
+import com.onlymega.dgaisan.html5maker.utils.ZipPackage;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
@@ -36,7 +38,7 @@ import com.opensymphony.xwork2.ActionSupport;
  */
 public class BannerAction extends ActionSupport implements 
 	SessionAware, ServletContextAware {
-    
+
 	private static final long serialVersionUID = 3819374929293L;
     private static final Logger logger = Logger.getLogger(BannerAction.class.getName());
 
@@ -46,7 +48,9 @@ public class BannerAction extends ActionSupport implements
     private Map<String, Object> session;
     private ServletContext context;
 
+    private InputStream fileInputStream;
     private String token;
+    private String bannerId;
     private String totalBanners;
     private String usedTraffic;
     private String totalTraffic;
@@ -91,14 +95,12 @@ public class BannerAction extends ActionSupport implements
     		setTotalTraffic(String.valueOf(membershipType.getTotalTraffic()));
     		setUsedTraffic(""); // TODO CACLULATE
     		setMembershipPlan(membershipType.getName());
-    		
-    		
+
     		if (getBannerService().isPremiumAccount(user)) {
     			// ...
     			return PREMIUM_DASHBOARD;
     		}
-    		    		
-    		
+
     		return LIMITED_DASHBOARD;
  
 		} catch (Exception e) {
@@ -140,17 +142,37 @@ public class BannerAction extends ActionSupport implements
     }
 
     /**
-     * Action for editing an existing banner
+     * Action for editing an existing banner.
      * 
      * @return
      */
     public String editBanner() {
-    	// TODO
-    	
-		return SUCCESS;
+    	System.out.println("BannerAction.editBanner()"); // XXX remove me
+    	System.out.println("bannerid = " + getBannerId());
+
+    	User currentUser = null;
+
+        try {
+            currentUser = (User) session.get(CommonData.USER_OBJECT);
+            String uId = (currentUser == null) ? "" 
+            		: String.valueOf(currentUser.getUserId());
+            String bId = (StringUtils.isEmpty(getBannerId())) ? "" 
+            		: getBannerId();
+
+            setToken(TokenUtil.getnerateToken(bId, uId));
+
+            System.out.println("userId = " + uId); // XXX
+            System.out.println("bannerId = " + bId);
+            System.out.println("token = " + getToken()); // XXX remove me
+        } catch (Exception e) {
+        	System.out.println("Exception " + e.getMessage()); // XXX remove me
+
+            logger.error(e.getMessage(), e);
+            return ERROR;
+        }
+
+        return SUCCESS;
 	}
-    
-    private String bannerId;
     
     public String getBannerId() {
 		return bannerId;
@@ -159,41 +181,16 @@ public class BannerAction extends ActionSupport implements
 	public void setBannerId(String bannerId) {
 		this.bannerId = bannerId;
 	}
-
 	
-	private InputStream fileInputStream;
-	 
 	public InputStream getFileInputStream() {
 		return fileInputStream;
 	}
  
 	/**
-     * Action responsible for downloading user's banner
+     * Action responsible for downloading user's banner.
      * 
      * @return
      */
-	/*
-    public String download()  {
-    	System.out.println("BannerAction.download()"); // XXX remove me
-    	System.out.println("bannerId = " + getBannerId()); 
-
-    	
-    	
-    	User user = (User) session.get(CommonData.USER_OBJECT);
-
-    	try {
-			if (getBannerService().isPremiumAccount(user)) {
-				return PREMIUM_DASHBOARD;
-			}
-		} catch (Exception e) {
-			e.printStackTrace(); // XXX remove me
-			return ERROR;
-		}
-
-		return LIMITED_DASHBOARD;
-	}
-    */
-	
     public String download() {
     	System.out.println("BannerAction.download()");
     	System.out.println("bannerId = " + getBannerId());
@@ -206,16 +203,30 @@ public class BannerAction extends ActionSupport implements
 				+ File.separator + userFolderName;
     		Banner banner = retrieveBannerById(getBannerId());
     		String fileName = KeyGenerator.generateKey();
-    		
-			fileInputStream = new FileInputStream(new File("C:\\downloadfile.txt"));
-		} catch (FileNotFoundException e1) {
+
+    		new ZipPackage(banner.getBannerConfig(), 
+    				banner.getBannerFile(), userFolder, fileName).create();
+
+    		// TODO generate banners on fly, w/o saving it on DS
+
+			fileInputStream = new FileInputStream(
+					new File(getZipUrl(userFolder, fileName)));
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+
+			logger.error("Unable to download file");
+			getActionErrors().clear();
+			getActionErrors().add("There were some problems downloading files");
 		}
 
 		return SUCCESS;
 	}
-    
+
+    private String getZipUrl(String fileFolder, String fileName) {
+    	return fileFolder + "/" + "html5maker" + fileName + ".zip";
+    }
+
     private Banner retrieveBannerById(String bannerId) {
     	int bId = Integer.valueOf(bannerId);
     	for (Banner b : getBanners()) {
@@ -223,10 +234,10 @@ public class BannerAction extends ActionSupport implements
     			return b;
     		}
     	}
-    	
+
     	return null;
     }
-    
+
     /**
      * Action for saving a new banner on the cloud.
      * 
@@ -240,93 +251,31 @@ public class BannerAction extends ActionSupport implements
 
         try {
             currentUser = (User) session.get(CommonData.USER_OBJECT);
+            List<TempBanner> bannersFromSession = getBannersFromSession();
 
-            if (currentUser == null) {
-             	logger.info("Attempt to save banner when not logged in");
-
-                return ERROR;
-            }
-
-            if (bannerService.isPremiumAccount(currentUser)) {
-            	return handlePremiumAccount(currentUser);
-            }
-
-            return handleFreeAccount(currentUser);
+        	if (bannersFromSession != null) {
+        		System.out.println("bannersFromSession.size(): " + 
+        				bannersFromSession.size()); // XXX remove me
+        		for (TempBanner b: bannersFromSession) {
+        			// TODO save to banners table
+        			// TODO copy from temp folder to user folder
+        		}
+        	}
         } catch (Exception e) {
         	System.out.println("Exception in Save BannerAction!!!"); // XXX remove me
-        	System.out.println(e.getMessage());
+        	e.printStackTrace();
 
-            logger.error(e.getMessage(), e);
+			logger.error("wasn't able to retrieve temp banners");
+			getActionMessages().clear();
+			getActionMessages().add("Something Happened! We were not able to retrieve " +
+					"temporary banners...");
 
             return ERROR;
         }
+
+        return SUCCESS;
     }
 
-    private String handleFreeAccount(User user) throws Exception {
-    	System.out.println("BannerAction.handleFreeAccount()");
-    	List<TempBanner> bannersFromSession = getBannersFromSession();
-
-    	if (bannersFromSession != null) {
-    		TempBanner onlyBannerForSafe = bannersFromSession.get(0);
-
-    		if (bannerService.countBanners(user) == 0) {
-    			// if user doesn't have banners then let
-    			// him save it
-    			
-    			// TODO
-    		}
-
-    		return SUCCESS;
-    	}
-    	
-//    	if (getBannerId() != null && !"".equals(getBannerId())) {
-//    		// An existing banner was edited
-//    		// TODO ...
-//    		return SUCCESS;
-//    	}
-
-    	if (getToken() != null && !"".equals(getToken())) {
-    		// newly created banner
-    		Banner b = new Banner();
-    		CloudData c = new CloudData();
-
-    		System.out.println("Creating a new Banner " + getToken());
-
-    		b.setActive(1);
-    		b.setDateCreated(new Date());
-    		b.setName(getToken());
-    		b.setUser(user);
-    		
-    		b.setBannerFile("");
-    		b.setZipFile(getToken() + ".zip");
-    		
-    		c.setBucketName("");
-    		c.setFilename("");
-    		//c.setInputFile("");
-    		c.setPath("");
-    		
-    		// getBannerService().saveBanner(b, c);
-    	}
-    	
-    	return ERROR;
-    }
-    
-    private String handlePremiumAccount(User user) throws Exception {
-    	List<TempBanner> bannersFromSession = getBannersFromSession(); 
-    	
-    	if (bannersFromSession != null) {
-    		// TODO for bannersFromSession...
-    		// b = new Banner();
-    		// c = new Cloud();
-    		// bannerservice.saveBanner(b, c);
-    		
-    		return SUCCESS;
-    	}
-
-       	// TODO ...
-
-       	return ERROR;
-    }
     
     @SuppressWarnings("unchecked")
 	private List<TempBanner> getBannersFromSession() {

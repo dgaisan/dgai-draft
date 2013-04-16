@@ -71,6 +71,8 @@
             </div>
         </header>
         <article>
+            <s:actionerror />
+
             <div class="package article_cloud">
                 <div class="article">
                     <div class="article_btn">

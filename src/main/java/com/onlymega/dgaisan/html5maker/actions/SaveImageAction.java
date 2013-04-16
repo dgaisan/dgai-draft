@@ -46,7 +46,7 @@ public class SaveImageAction extends ActionSupport
 	private BannerService bannerService;
 
 	private String token;
-	
+
 	@Override
 	public String execute() throws Exception {
 		System.out.println("SaveImageAction.execute()"); // XXX remove me!
@@ -84,7 +84,7 @@ public class SaveImageAction extends ActionSupport
 
 		return null;
 	}
-	
+
 	private String getSaveFolder() throws Exception {
 		System.out.println("SaveImageAction.getSaveFolder()"); // XXX remove me
 		String saveFolder = servletContext.getRealPath("/") + CommonData.TEMP_FOLDER;
@@ -103,7 +103,7 @@ public class SaveImageAction extends ActionSupport
 
 		return saveFolder;
 	}
-	
+
 	public void setServletRequest(HttpServletRequest request) {
 		this.request = request;
 	}
@@ -133,5 +133,4 @@ public class SaveImageAction extends ActionSupport
 	public void setBannerService(BannerService bannerService) {
 		this.bannerService = bannerService;
 	}
-
 }

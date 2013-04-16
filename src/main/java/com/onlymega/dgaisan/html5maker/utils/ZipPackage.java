@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.onlymega.dgaisan.html5maker.common.CommonData;
+import com.onlymega.dgaisan.html5maker.model.Banner;
 import com.onlymega.dgaisan.html5maker.model.TempBanner;
 
 /**
@@ -32,13 +33,15 @@ public class ZipPackage {
 	public static final String HTML_TEMPLATE = 
 		"<!DOCTYPE html><html lang=\"en\"><head> <meta charset=\"utf-8\"> " +
 	"<title></title></head><body>{0}</body></html>";
-	
+
 	private String html;
 	private String outputDirName;
 
-	private final String dataToken;
+	private String dataToken;
 	private String tempDirName;
-	//context.getRealPath("/") + CommonData.TEMP_FOLDER;
+	private String basicFolder;
+	private String bannerConfig;
+
 	private String assetsDirName;
 	private String zipFolderName;
 
@@ -47,25 +50,35 @@ public class ZipPackage {
 	private String outputAssetsDirName;
 
 	private File outputEmbedFile;
+	private File demoEmbedFile;
 	private File outputBannerFile;
 	private File outputAssetsDir;
 
-	private TempBanner data;
 	private List<String> imageNames;
 
 	private ZipOutputStream zop;
 	private String outputZipName = "";
 
-	public ZipPackage(TempBanner data, String tempDir, String dataToken) throws Exception {
-		this.data = data;
-		this.tempDirName = tempDir;
+	/**
+	 * Constructor for creating a Zip package.
+	 * 
+	 * @param bannerConfig json 
+	 * @param bannerHtml html code
+	 * @param saveFolder base folder 
+	 * @param dataToken {@link String} general name
+	 * @throws Exception
+	 */
+	public ZipPackage(String bannerConfig, String bannerHtml, String saveFolder, String dataToken) throws Exception {
+		this.tempDirName = saveFolder;
 		this.dataToken = dataToken;
-		
+		this.basicFolder = saveFolder;
+		this.bannerConfig = bannerConfig;
+
 		zipFolderName = "html5maker" + getDataToken();
 		assetsDirName = CommonData.ASSETS_PREFIX + getDataToken();
 
 		html = 
-			data.getHtmlCode()
+			bannerHtml
 			.replace("stringtoreplace", 
 					CommonData.ASSETS_PREFIX + getDataToken());
 
@@ -81,22 +94,23 @@ public class ZipPackage {
 		}
 		outputDir.mkdir();
 		
-		outputEmbedFileName = outputDirName + File.separator + "embed.html";
-		outputBannerFileName = outputDirName + File.separator + "banner.html";
+		outputEmbedFileName = outputDirName + File.separator + "embed.htm";
+		outputBannerFileName = outputDirName + File.separator + "banner.htm";
 		outputAssetsDirName = outputDirName + File.separator + CommonData.ASSETS_PREFIX + getDataToken();
-			
+		String demoFileName = outputDirName + File.separator + "demo.htm";
+		
 		outputEmbedFile = new File(outputEmbedFileName);
 		outputBannerFile = new File (outputBannerFileName);
 		outputAssetsDir = new File(outputAssetsDirName);
+		demoEmbedFile = new File(demoFileName);
 		
 		outputEmbedFile.createNewFile();
+		demoEmbedFile.createNewFile();
 		outputBannerFile.createNewFile();
 		outputAssetsDir.mkdir();
 	
 		String outputHtml = 
 			MessageFormat.format(HTML_TEMPLATE, html);
-		
-		System.out.println("outputHtml: " + outputHtml); // XXX remove me
 		
 		BufferedWriter bannerWriter = 
 			new BufferedWriter(new FileWriter(outputBannerFile));
@@ -116,16 +130,20 @@ public class ZipPackage {
 			File tempDirFile = new File(tempDirName);
 			File dest = new File(outputAssetsDirName, imageName);
 			File src = new File(tempDirFile, imageName);
-			
+
 			FileUtils.copyFile(src, dest);
 		}
 	}
-	
-	public static String getZipName(String token) {
+
+	private String getBasicFolder() {
+		return basicFolder;
+	}
+
+	public static String getTempZipName(String token) {
 		return CommonData.TEMP_FOLDER + "/" + 
 			"html5maker" + token + ".zip"; 
 	}
-	
+
 	private String getDataToken() {
 		return dataToken;
 	}
@@ -140,9 +158,9 @@ public class ZipPackage {
 		this.zop = 
 			new ZipOutputStream(new FileOutputStream(new File(outputZipName)));
 
-		addFileToZip("banner.html", outputBannerFileName, zop);
-		addFileToZip("embed.html", outputEmbedFileName, zop);
-		
+		addFileToZip("banner.htm", outputBannerFileName, zop);
+		addFileToZip("embed.htm", outputEmbedFileName, zop);
+
 		for (final String imageName : imageNames) {
 			addFileToZip(assetsDirName + File.separator + imageName, 
 					outputAssetsDirName + File.separator + imageName, zop);
@@ -151,7 +169,7 @@ public class ZipPackage {
 		zop.flush();
 		zop.close();
 
-		return CommonData.TEMP_FOLDER + "/" + zipFolderName + ".zip";
+		return getBasicFolder() + "/" + zipFolderName + ".zip";
 	}
 
 	/**
@@ -165,11 +183,11 @@ public class ZipPackage {
 	 */
 	private void addFileToZip(String fileName, String fileDest, ZipOutputStream zos)
     	throws FileNotFoundException, IOException {
-		
+
 		zos.putNextEntry(new ZipEntry(fileName));
-	 
+
 	    File file = new File(fileDest);
-		
+
 		if (!file.isDirectory()) {
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(
 					file));
@@ -183,23 +201,23 @@ public class ZipPackage {
 				bytesRead += read;
 			}
 		}
-	 
+
 	    zos.closeEntry();
 	}
-	
+
 	private List<String> getImageNamesFromJson() throws JSONException {
 		List<String> ret = new ArrayList<String>();
-		
-		JSONObject json = new JSONObject(data.getBannerConfig());
+
+		JSONObject json = new JSONObject(bannerConfig);
 		JSONArray items = (JSONArray) json.get("items");
-		
+
 		for (int index = 0; index < items.length(); index++) {
 			JSONObject x = (JSONObject) items.get(index);
 			String url = x.getString("uploadURL");
-			
+
 			ret.add(url);
 		}
-		
+
 		return ret;
 	}
 }

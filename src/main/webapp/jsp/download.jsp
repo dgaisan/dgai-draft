@@ -25,9 +25,7 @@
 		<% response.sendRedirect("/homepage.html"); %>
 	</s:if>
 
-	<s:actionerror/>
-
-	<s:property value="testContext" />
+	<s:actionerror />
 
 	<%!
 	String getContext(javax.servlet.http.HttpServletRequest request) {		
@@ -89,8 +87,11 @@
                             <div class="corner_bottom_right"></div>
                             <div class="border_right"></div>
                             <div class="border_left"></div>
-                            <div class="download_img_center">
-                                <img src="img/1.jpg" width="600" height="400" alt="">
+                            <div id="embed_code_id" class="download_img_center">
+                                <iframe src="<s:property value='testContext'/>/<s:property value='embedCode'/>" width="600" height="400" scrolling="no"></iframe>
+                                <!--
+                                    <img src="<s:url value='/img/1.jpg' />" width="600" height="400" alt="  default URL" />
+                                -->
                             </div><!--end download_img_center-->
                             <div class="download_img_bottom"></div>
                         </div><!--end download_img-->
@@ -282,11 +283,12 @@
     </div>
     <div id="fb-root"></div>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" /></script>
-    <script type="text/javascript" src="js/script.js"></script>
-    <script type="text/javascript" src="js/jquery.placeholder.min.js"></script>
-    <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
-    <script type="text/javascript" src="js/social.js"></script>
-    <script type="text/javascript" src="js/feedback.js"></script>
+    <script type="text/javascript" src="<s:url value='/js/script.js'/>"></script>
+    <script type="text/javascript" src="<s:url value='/js/jquery.placeholder.min.js'/>"></script>
+    <script type="text/javascript" src="<s:url value='/js/jquery.leanModal.min.js'/>"></script>
+    <script type="text/javascript" src="<s:url value='/js/social.js'/>"></script>
+    <script type="text/javascript" src="<s:url value='/js/feedback.js'/>"></script>
+    <script type="text/javascript" src="<s:url value='/js/jquery.easing-1.3.min.js'/>"></script>
     <script type="text/javascript" language="JavaScript" src="http://idea.informer.com/tab6.js?domain=html5maker"></script>
     <noscript>
         <a href="http://html5maker.idea.informer.com">HTML5 Maker Feedback</a>
@@ -294,6 +296,15 @@
 			<img src="http://widget.idea.informer.com/tmpl/images/widget_logo.jpg">
 		</a>
     </noscript>
-    <script type="text/javascript" src="js/analytics.js"></script>
+    <script type="text/javascript" src="<s:url value='/js/analytics.js'/>"></script>
+    <script type="text/javascript" src="<s:url value='/js/jquery.min.js'/>"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var $toLoad = "<s:property value='testContext'/>/<s:property value='embedCode'/>"    
+            console.log($toLoad);
+            //$("#embed_code_id").load($toLoad); 
+        })
+    </script>
+    
 </body>
 </html>

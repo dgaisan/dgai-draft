@@ -21,6 +21,12 @@ public class Banner {
     private User user;
     private int active;
     
+    public Banner() { }
+    
+    public Banner(TempBanner tempBanner) { 
+    	// TODO !
+    }
+    
     /**
      * @return the id
      */
